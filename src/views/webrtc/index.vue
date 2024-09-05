@@ -732,7 +732,10 @@ function handleMouseWheel(e: WheelEvent) {
 }
 
 function handleClose() {
+  // 关闭所有远程
   networkStore.removeRtc(joinedReceiver.value);
+  // 关闭所有连接
+  networkStore.removeAllWs();
 }
 
 function reInit() {

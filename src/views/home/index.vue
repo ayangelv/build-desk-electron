@@ -266,7 +266,7 @@ onMounted(() => {
   //1-- 断开连接
   window.electronAPI.ipcRenderer.on('remoteDesktopDisconnect', (_event) => {
     console.log('断开连接');
-    handleCloseAll();
+    networkStore.removeWs(roomId.value);
   });
   //1-- 握信通知开始链接
   window.electronAPI.ipcRenderer.on(
