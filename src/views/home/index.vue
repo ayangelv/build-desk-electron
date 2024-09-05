@@ -245,184 +245,250 @@ const tiemr = ref();
 const suspend = ref('');
 const resume = ref('');
 
+const backToUser = ref();
+
 onUnmounted(() => {
   networkStore.removeAllWsAndRtc();
   handleCloseAll();
 });
 
+const notifyWoxin = () => {
+  console.log(' backToUser.value', backToUser.value);
+  window.electronAPI.ipcRenderer.send('remote-desktop-action', {
+    deskUserUuid: deskUserUuid.value,
+    deskUserPassword: deskUserPassword.value,
+    remoteDeskUserUuid: remoteDeskUserUuid.value,
+    receiverId: receiverId.value,
+    backToUser: { lid: backToUser.value },
+  });
+};
 onMounted(() => {
-  clearInterval(tiemr.value);
-  tiemr.value = setInterval(() => {
-    networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
-      requestId: getRandomString(8),
-      msgType: WsMsgTypeEnum.updateDeskUser,
-      data: {
+  //1-- 握信通知开始链接
+  window.electronAPI.ipcRenderer.on(
+    'remoteDesktopControlMainInIt',
+    (_event, params) => {
+      // 拒绝的时候端口连接
+      if (params.content === 'remote_desktop_reject') {
+        handleCloseAll();
+        return;
+      }
+      console.log('paramsparamsparams', params);
+      roomId.value = params.remoteRoomId;
+      backToUser.value = params.lid;
+      clearInterval(tiemr.value);
+      tiemr.value = setInterval(() => {
+        networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
+          requestId: getRandomString(8),
+          msgType: WsMsgTypeEnum.updateDeskUser,
+          data: {
+            roomId: roomId.value,
+            sender: mySocketId.value,
+            receiver: receiverId.value,
+            maxBitrate: currentMaxBitrate.value,
+            maxFramerate: currentMaxFramerate.value,
+            resolutionRatio: currentResolutionRatio.value,
+            videoContentHint: currentVideoContentHint.value,
+            audioContentHint: currentAudioContentHint.value,
+            deskUserUuid: deskUserUuid.value || '',
+            deskUserPassword: deskUserPassword.value || '',
+            remoteDeskUserUuid: remoteDeskUserUuid.value || '',
+          },
+        });
+      }, 1000 * 1);
+      initUser();
+      handleMainWindowSetAlwaysOnTop(true);
+      initWs({
         roomId: roomId.value,
-        sender: mySocketId.value,
-        receiver: receiverId.value,
-        maxBitrate: currentMaxBitrate.value,
-        maxFramerate: currentMaxFramerate.value,
-        resolutionRatio: currentResolutionRatio.value,
-        videoContentHint: currentVideoContentHint.value,
-        audioContentHint: currentAudioContentHint.value,
-        deskUserUuid: deskUserUuid.value || '',
-        deskUserPassword: deskUserPassword.value || '',
-        remoteDeskUserUuid: remoteDeskUserUuid.value || '',
-      },
-    });
-  }, 1000 * 1);
-  initUser();
-  handleMainWindowSetAlwaysOnTop(true);
-  initWs({
-    roomId: roomId.value,
-    isAnchor: false,
-    isRemoteDesk: true,
-  });
+        isAnchor: false,
+        isRemoteDesk: true,
+      });
 
-  console.log(route.query);
-  if (route.query.windowId !== undefined) {
-    windowId.value = `${route.query.windowId as string}`;
-  } else {
-    window.electronAPI.ipcRenderer.send('getMainWindowId', {
-      type: 'getMainWindowId',
-    });
-  }
+      console.log('route.query', route.query);
+      if (route.query.windowId !== undefined) {
+        windowId.value = `${route.query.windowId as string}`;
+      } else {
+        window.electronAPI.ipcRenderer.send('getMainWindowId', {
+          type: 'getMainWindowId',
+        });
+      }
 
-  window.electronAPI.ipcRenderer.on(
-    'powerMonitor-suspend',
-    (_event, source) => {
-      console.log('powerMonitor-suspend', source);
-      suspend.value = `${new Date().toLocaleString()}-suspend`;
+      window.electronAPI.ipcRenderer.on(
+        'powerMonitor-suspend',
+        (_event, source) => {
+          console.log('powerMonitor-suspend', source);
+          suspend.value = `${new Date().toLocaleString()}-suspend`;
+        }
+      );
+      window.electronAPI.ipcRenderer.on(
+        'powerMonitor-resume',
+        (_event, source) => {
+          console.log('powerMonitor-resume', source);
+          resume.value = `${new Date().toLocaleString()}-resume`;
+          handleCloseAll();
+        }
+      );
+
+      window.electronAPI.ipcRenderer.on('workAreaSizeRes', (_event, source) => {
+        console.log('workAreaSizeRes', source);
+        appStore.workAreaSize.width = source.width;
+        appStore.workAreaSize.height = source.height;
+      });
+
+      window.electronAPI.ipcRenderer.on(
+        'getPrimaryDisplaySizeRes',
+        (_event, source) => {
+          console.log('getPrimaryDisplaySizeRes', source);
+          appStore.primaryDisplaySize.width = source.width;
+          appStore.primaryDisplaySize.height = source.height;
+        }
+      );
+
+      window.electronAPI.ipcRenderer.send('workAreaSize');
+      window.electronAPI.ipcRenderer.send('getPrimaryDisplaySize');
+
+      window.electronAPI.ipcRenderer.on(
+        'getMainWindowIdRes',
+        (_event, source) => {
+          console.log('getMainWindowIdRes', source);
+          windowId.value = `${source.id as string}`;
+        }
+      );
+
+      window.electronAPI.ipcRenderer.on('openRemote', (_event, source) => {
+        console.log('openRemote', source);
+      });
+
+      window.electronAPI.ipcRenderer.on('createWindowRes', (_event, source) => {
+        console.log('createWindowRes', source);
+        window.electronAPI.ipcRenderer.send('childWindowInit', {
+          type: 'childWindowInit',
+          data: { id: source.id },
+        });
+      });
+      window.electronAPI.ipcRenderer.on(
+        'getMousePositionRes',
+        (_event, source) => {
+          console.log('getMousePositionRes', source);
+        }
+      );
+      window.electronAPI.ipcRenderer.on(
+        'mouseScrollDownRes',
+        (_event, source) => {
+          console.log('mouseScrollDownRes', source);
+        }
+      );
+      window.electronAPI.ipcRenderer.on(
+        'mouseScrollUpRes',
+        (_event, source) => {
+          console.log('mouseScrollUpRes', source);
+        }
+      );
+      window.electronAPI.ipcRenderer.on(
+        'mouseScrollLeftRes',
+        (_event, source) => {
+          console.log('mouseScrollLeftRes', source);
+        }
+      );
+      window.electronAPI.ipcRenderer.on(
+        'mouseScrollRightRes',
+        (_event, source) => {
+          console.log('mouseScrollRightRes', source);
+        }
+      );
+      window.electronAPI.ipcRenderer.on('mouseMoveRes', (_event, source) => {
+        console.log('mouseMoveRes', source);
+      });
+      window.electronAPI.ipcRenderer.on('mouseDragRes', (_event, source) => {
+        console.log('mouseDragRes', source);
+      });
+      window.electronAPI.ipcRenderer.on(
+        'mouseSetPositionRes',
+        (_event, source) => {
+          console.log('mouseSetPositionRes', source);
+        }
+      );
+      window.electronAPI.ipcRenderer.on(
+        'mouseDoubleClickRes',
+        (_event, source) => {
+          console.log('mouseDoubleClickRes', source);
+        }
+      );
+      window.electronAPI.ipcRenderer.on(
+        'mousePressButtonLeftRes',
+        (_event, source) => {
+          console.log('mousePressButtonLeftRes', source);
+        }
+      );
+      window.electronAPI.ipcRenderer.on(
+        'mouseReleaseButtonLeftRes',
+        (_event, source) => {
+          console.log('mouseReleaseButtonLeftRes', source);
+        }
+      );
+      window.electronAPI.ipcRenderer.on('keyboardTypeRes', (_event, source) => {
+        console.log('keyboardTypeRes', source);
+      });
+      window.electronAPI.ipcRenderer.on(
+        'mouseLeftClickRes',
+        (_event, source) => {
+          console.log('mouseLeftClickRes', source);
+        }
+      );
+      window.electronAPI.ipcRenderer.on(
+        'mouseRightClickRes',
+        (_event, source) => {
+          console.log('mouseRightClickRes', source);
+        }
+      );
+      window.electronAPI.ipcRenderer.on(
+        'getScreenStreamRes',
+        (_event, source) => {
+          console.log('收到getScreenStreamRes', source);
+          if (source.isErr) {
+            window.$message.error(source.msg);
+            return;
+          }
+          chromeMediaSourceId.value = source.stream.id;
+          handleDesktopStream(source.stream.id);
+        }
+      );
+
+      window.electronAPI.ipcRenderer.on(
+        'handle-start-remote',
+        (_event, params) => {
+          console.log('handle handle-start-remote', params);
+          remoteDeskUserUuid.value = params.deskUserUuid;
+          receiverId.value = params.receiverId;
+          startRemote();
+        }
+      );
+
+      // 收到被控制方结束远程
+      window.electronAPI.ipcRenderer.on(
+        'handle-end-remote',
+        (_event, params) => {
+          console.log('收到被控制方结束远程handle handle-end-remote', params);
+          window.electronAPI.ipcRenderer.send('childWindowClose');
+        }
+      );
     }
   );
-  window.electronAPI.ipcRenderer.on('powerMonitor-resume', (_event, source) => {
-    console.log('powerMonitor-resume', source);
-    resume.value = `${new Date().toLocaleString()}-resume`;
-    handleCloseAll();
-  });
-
-  window.electronAPI.ipcRenderer.on('workAreaSizeRes', (_event, source) => {
-    console.log('workAreaSizeRes', source);
-    appStore.workAreaSize.width = source.width;
-    appStore.workAreaSize.height = source.height;
-  });
-
-  window.electronAPI.ipcRenderer.on(
-    'getPrimaryDisplaySizeRes',
-    (_event, source) => {
-      console.log('getPrimaryDisplaySizeRes', source);
-      appStore.primaryDisplaySize.width = source.width;
-      appStore.primaryDisplaySize.height = source.height;
-    }
-  );
-
-  window.electronAPI.ipcRenderer.send('workAreaSize');
-  window.electronAPI.ipcRenderer.send('getPrimaryDisplaySize');
-
-  window.electronAPI.ipcRenderer.on('getMainWindowIdRes', (_event, source) => {
-    console.log('getMainWindowIdRes', source);
-    windowId.value = `${source.id as string}`;
-  });
-
-  window.electronAPI.ipcRenderer.on('openRemote', (_event, source) => {
-    console.log('openRemote', source);
-  });
-
-  window.electronAPI.ipcRenderer.on('createWindowRes', (_event, source) => {
-    console.log('createWindowRes', source);
-    window.electronAPI.ipcRenderer.send('childWindowInit', {
-      type: 'childWindowInit',
-      data: { id: source.id },
-    });
-  });
-  window.electronAPI.ipcRenderer.on('getMousePositionRes', (_event, source) => {
-    console.log('getMousePositionRes', source);
-  });
-  window.electronAPI.ipcRenderer.on('mouseScrollDownRes', (_event, source) => {
-    console.log('mouseScrollDownRes', source);
-  });
-  window.electronAPI.ipcRenderer.on('mouseScrollUpRes', (_event, source) => {
-    console.log('mouseScrollUpRes', source);
-  });
-  window.electronAPI.ipcRenderer.on('mouseScrollLeftRes', (_event, source) => {
-    console.log('mouseScrollLeftRes', source);
-  });
-  window.electronAPI.ipcRenderer.on('mouseScrollRightRes', (_event, source) => {
-    console.log('mouseScrollRightRes', source);
-  });
-  window.electronAPI.ipcRenderer.on('mouseMoveRes', (_event, source) => {
-    console.log('mouseMoveRes', source);
-  });
-  window.electronAPI.ipcRenderer.on('mouseDragRes', (_event, source) => {
-    console.log('mouseDragRes', source);
-  });
-  window.electronAPI.ipcRenderer.on('mouseSetPositionRes', (_event, source) => {
-    console.log('mouseSetPositionRes', source);
-  });
-  window.electronAPI.ipcRenderer.on('mouseDoubleClickRes', (_event, source) => {
-    console.log('mouseDoubleClickRes', source);
-  });
-  window.electronAPI.ipcRenderer.on(
-    'mousePressButtonLeftRes',
-    (_event, source) => {
-      console.log('mousePressButtonLeftRes', source);
-    }
-  );
-  window.electronAPI.ipcRenderer.on(
-    'mouseReleaseButtonLeftRes',
-    (_event, source) => {
-      console.log('mouseReleaseButtonLeftRes', source);
-    }
-  );
-  window.electronAPI.ipcRenderer.on('keyboardTypeRes', (_event, source) => {
-    console.log('keyboardTypeRes', source);
-  });
-  window.electronAPI.ipcRenderer.on('mouseLeftClickRes', (_event, source) => {
-    console.log('mouseLeftClickRes', source);
-  });
-  window.electronAPI.ipcRenderer.on('mouseRightClickRes', (_event, source) => {
-    console.log('mouseRightClickRes', source);
-  });
-  window.electronAPI.ipcRenderer.on('getScreenStreamRes', (_event, source) => {
-    console.log('收到getScreenStreamRes', source);
-    if (source.isErr) {
-      window.$message.error(source.msg);
-      return;
-    }
-    chromeMediaSourceId.value = source.stream.id;
-    handleDesktopStream(source.stream.id);
-  });
-
-  window.electronAPI.ipcRenderer.on('query-data', (_event, params) => {
-    console.log('handle query-data');
-
-    window.electronAPI.ipcRenderer.send('remote-desktop-action', {
-      deskUserUuid: deskUserUuid.value,
-      deskUserPassword: deskUserPassword.value,
-      remoteDeskUserUuid: remoteDeskUserUuid.value,
-      receiverId: receiverId.value,
-      backToUser: params,
-    });
-  });
-
-  window.electronAPI.ipcRenderer.on('handle-start-remote', (_event, params) => {
-    console.log('handle handle-start-remote', params);
-    remoteDeskUserUuid.value = params.deskUserUuid;
-    receiverId.value = params.receiverId;
-    startRemote();
-  });
 });
 
 async function initUser() {
+  console.log('deskUserUuid.value', deskUserUuid.value);
+  console.log('deskUserPassword.value', deskUserPassword.value);
   if (!deskUserUuid.value || !deskUserPassword.value) {
-    console.log('生成账号');
     const res = await fetchDeskUserCreate();
+    console.log('生成账号', res);
+
     if (res.code === 200) {
       deskUserUuid.value = res.data.uuid!;
       deskUserPassword.value = res.data.password!;
       newpassword.value = res.data.password!;
       setUuid(res.data.uuid!);
       setPassword(res.data.password!);
+      notifyWoxin();
     }
   } else {
     const res = await fetchDeskUserLogin({
@@ -432,6 +498,7 @@ async function initUser() {
     if (res.code === 200) {
       setUuid(deskUserUuid.value);
       setPassword(deskUserPassword.value);
+      notifyWoxin();
     }
   }
 }
@@ -582,7 +649,7 @@ function startRemote() {
   //     },
   //   });
   // }, 1000 * 1);
-
+  // 通知握信创建远程的窗口
   isControlOther.value = true;
   window.electronAPI.ipcRenderer.send('createRemoteDesktopChildWindow', {
     type: 'createWindow',
@@ -595,6 +662,7 @@ function startRemote() {
         receiverId: receiverId.value,
         width: appStore.workAreaSize.width,
         height: appStore.workAreaSize.height,
+        remoteRoomId: roomId.value,
       },
       x: 0,
       y: 0,

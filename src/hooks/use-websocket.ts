@@ -280,6 +280,7 @@ export const useWebsocket = () => {
       connectStatus.value = WsConnectStatusEnum.connect;
       ws.status = WsConnectStatusEnum.connect;
       ws.update();
+      // 加入房间
       sendJoin();
     });
 

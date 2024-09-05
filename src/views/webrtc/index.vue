@@ -498,14 +498,17 @@ onUnmounted(() => {
 });
 
 onMounted(() => {
+  console.log('route.query', route.query);
+  roomId.value = route.query.remoteRoomId;
+
   videoWrapRef.value?.addEventListener('wheel', handleMouseWheel);
+
   window.addEventListener('keydown', handleKeyDown);
   initWs({
     roomId: roomId.value,
     isAnchor: false,
     isRemoteDesk: true,
   });
-  console.log(route.query);
 
   loopGetSettings();
   if (route.query.receiverId !== undefined) {
@@ -1240,6 +1243,7 @@ function mockClick() {
   align-items: center;
   justify-content: center;
   position: relative;
+  -webkit-app-region: drag;
   .header-tit {
   }
   .header-window-control {
