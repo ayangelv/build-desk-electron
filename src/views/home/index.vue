@@ -259,7 +259,7 @@ const notifyWoxin = () => {
     deskUserPassword: deskUserPassword.value,
     remoteDeskUserUuid: remoteDeskUserUuid.value,
     receiverId: receiverId.value,
-    backToUser: { lid: backToUser.value },
+    backToUser: backToUser.value,
   });
 };
 onMounted(() => {
@@ -274,7 +274,8 @@ onMounted(() => {
     (_event, params) => {
       console.log('paramsparamsparams', params);
       roomId.value = params.remoteRoomId;
-      backToUser.value = params.lid;
+      // 被控制人的ims号
+      backToUser.value = params.backToUser;
       clearInterval(tiemr.value);
       tiemr.value = setInterval(() => {
         networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
@@ -440,7 +441,10 @@ async function initUser() {
       newpassword.value = res.data.password!;
       setUuid(res.data.uuid!);
       setPassword(res.data.password!);
-      notifyWoxin();
+      //别远程的人执行
+      if (backToUser.value) {
+        notifyWoxin();
+      }
     }
   } else {
     const res = await fetchDeskUserLogin({
@@ -450,7 +454,11 @@ async function initUser() {
     if (res.code === 200) {
       setUuid(deskUserUuid.value);
       setPassword(deskUserPassword.value);
-      notifyWoxin();
+      //别远程的人执行
+
+      if (backToUser.value) {
+        notifyWoxin();
+      }
     }
   }
 }
