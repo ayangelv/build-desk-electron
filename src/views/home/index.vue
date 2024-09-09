@@ -300,9 +300,9 @@ onMounted(() => {
               },
             });
         }, 1000 * 1);
-        initUser();
         handleMainWindowSetAlwaysOnTop(true);
       }
+      initUser();
 
       initWs({
         roomId: roomId.value,
@@ -447,7 +447,7 @@ async function initUser() {
       newpassword.value = res.data.password!;
       setUuid(res.data.uuid!);
       setPassword(res.data.password!);
-      //别远程的人执行
+      //被远程的人执行
       if (backToUser.value) {
         notifyWoxin();
       }
@@ -460,7 +460,7 @@ async function initUser() {
     if (res.code === 200) {
       setUuid(deskUserUuid.value);
       setPassword(deskUserPassword.value);
-      //别远程的人执行
+      //被远程的人执行
 
       if (backToUser.value) {
         notifyWoxin();
