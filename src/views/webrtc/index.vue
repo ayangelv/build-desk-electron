@@ -499,7 +499,7 @@ onUnmounted(() => {
 
 onMounted(() => {
   console.log('route.query', route.query);
-  roomId.value = route.query.remoteRoomId;
+  // roomId.value = route.query.remoteRoomId;
 
   videoWrapRef.value?.addEventListener('wheel', handleMouseWheel);
 

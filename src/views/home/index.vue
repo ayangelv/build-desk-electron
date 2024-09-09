@@ -273,7 +273,7 @@ onMounted(() => {
     'remoteDesktopControlMainInIt',
     (_event, params) => {
       console.log('paramsparamsparams', params);
-      roomId.value = params.remoteRoomId;
+      // roomId.value = params.remoteRoomId;
       // 被控制人的ims号
       backToUser.value = params.backToUser;
       clearInterval(tiemr.value);

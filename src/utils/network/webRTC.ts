@@ -546,6 +546,7 @@ export class WebRTCClass {
       });
       this.peerConnection.ondatachannel = (event) => {
         this.cbDataChannel = event.channel;
+        console.log(' this.cbDataChannel', this.cbDataChannel)
         this.update();
       };
       this.dataChannel = this.peerConnection.createDataChannel(
