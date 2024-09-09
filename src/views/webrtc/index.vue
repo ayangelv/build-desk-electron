@@ -284,6 +284,7 @@ const endRemote = () => {
   });
 };
 const handleWinClose = () => {
+  console.log('handleWinClosehandleWinClose');
   window.electronAPI.ipcRenderer.send('childWindowClose');
 };
 const handleWinMin = () => {
@@ -557,6 +558,7 @@ onMounted(() => {
   );
 
   window.electronAPI.ipcRenderer.on('childWindowClose', () => {
+    console.log('childWindowClose---');
     networkStore.removeAllWsAndRtc();
     handleClose();
   });

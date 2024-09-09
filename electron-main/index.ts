@@ -84,7 +84,6 @@ function createWindow() {
 // // 发送关闭远程
 //       win?.webContents.send('childWindowClose');
 
-
     } catch (error) {
       console.log('childWindowClose失败');
       console.log(error);

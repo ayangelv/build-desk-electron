@@ -782,8 +782,11 @@ watch(
   () => appStore.remoteDesk,
   (newval) => {
     console.log('远程连接断开', newval);
+
     newval.forEach((item) => {
       if (item.isClose) {
+        networkStore.removeWs(roomId.value);
+
         window.$notification.warning({
           content: `${item.sender}远程连接断开`,
           duration: 2000,
