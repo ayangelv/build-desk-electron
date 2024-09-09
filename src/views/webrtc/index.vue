@@ -353,6 +353,7 @@ const videoSettings = ref<MediaTrackSettings>();
 watch(
   () => joinedReceiver.value,
   () => {
+    console.log('joinedReceiver.value', joinedReceiver.value);
     networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
       requestId: getRandomString(8),
       msgType: WsMsgTypeEnum.startRemoteDesk,

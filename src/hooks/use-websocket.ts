@@ -253,6 +253,8 @@ export const useWebsocket = () => {
 
   function sendJoin() {
     const instance = networkStore.wsMap.get(roomId.value);
+    console.log('加入房间',instance)
+
     if (!instance) return;
     instance.send<WsJoinType['data']>({
       requestId: getRandomString(8),

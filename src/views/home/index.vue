@@ -276,28 +276,34 @@ onMounted(() => {
       // roomId.value = params.remoteRoomId;
       // 被控制人的ims号
       backToUser.value = params.backToUser;
-      clearInterval(tiemr.value);
-      tiemr.value = setInterval(() => {
-        networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
-          requestId: getRandomString(8),
-          msgType: WsMsgTypeEnum.updateDeskUser,
-          data: {
-            roomId: roomId.value,
-            sender: mySocketId.value,
-            receiver: receiverId.value,
-            maxBitrate: currentMaxBitrate.value,
-            maxFramerate: currentMaxFramerate.value,
-            resolutionRatio: currentResolutionRatio.value,
-            videoContentHint: currentVideoContentHint.value,
-            audioContentHint: currentAudioContentHint.value,
-            deskUserUuid: deskUserUuid.value || '',
-            deskUserPassword: deskUserPassword.value || '',
-            remoteDeskUserUuid: remoteDeskUserUuid.value || '',
-          },
-        });
-      }, 1000 * 1);
-      initUser();
-      handleMainWindowSetAlwaysOnTop(true);
+      // 以下代码是控制对方执行
+      if (!params.remoteRoomId) {
+        clearInterval(tiemr.value);
+        tiemr.value = setInterval(() => {
+          networkStore.wsMap
+            .get(roomId.value)
+            ?.send<WsStartRemoteDesk['data']>({
+              requestId: getRandomString(8),
+              msgType: WsMsgTypeEnum.updateDeskUser,
+              data: {
+                roomId: roomId.value,
+                sender: mySocketId.value,
+                receiver: receiverId.value,
+                maxBitrate: currentMaxBitrate.value,
+                maxFramerate: currentMaxFramerate.value,
+                resolutionRatio: currentResolutionRatio.value,
+                videoContentHint: currentVideoContentHint.value,
+                audioContentHint: currentAudioContentHint.value,
+                deskUserUuid: deskUserUuid.value || '',
+                deskUserPassword: deskUserPassword.value || '',
+                remoteDeskUserUuid: remoteDeskUserUuid.value || '',
+              },
+            });
+        }, 1000 * 1);
+        initUser();
+        handleMainWindowSetAlwaysOnTop(true);
+      }
+
       initWs({
         roomId: roomId.value,
         isAnchor: false,
@@ -487,7 +493,7 @@ async function handleUpdatePassword() {
 watch(
   () => connectStatus.value,
   (newval) => {
-    console.log('connectStatus', newval);
+    console.log('connectStatus', newval, WsConnectStatusEnum.connect);
     if (newval === WsConnectStatusEnum.connect) {
       handleWsMsg();
     }
@@ -496,23 +502,37 @@ watch(
 
 function handleWsMsg() {
   const ws = networkStore.wsMap.get(roomId.value);
+  console.log('wswsws', ws);
   if (!ws?.socketIo) return;
   // 收到startRemoteDesk
-  ws.socketIo.on(WsMsgTypeEnum.startRemoteDesk, (data: WsStartRemoteDesk) => {
-    console.log('收到startRemoteDesk', JSON.stringify(data));
-    if (data.data.receiver === mySocketId.value) {
-      appStore.remoteDesk.set(data.data.sender, {
-        sender: data.data.sender,
-        isClose: false,
-        maxBitrate: data.data.maxBitrate,
-        maxFramerate: data.data.maxFramerate,
-        resolutionRatio: data.data.resolutionRatio,
-        videoContentHint: data.data.videoContentHint,
-        audioContentHint: data.data.audioContentHint,
-      });
-      handleRTC(data.data.sender);
-    }
-  });
+  console.log('收到startRemoteDesk1', ws);
+  console.log('WsMsgTypeEnum', WsMsgTypeEnum.startRemoteDesk);
+  try {
+    ws.socketIo.on(WsMsgTypeEnum.startRemoteDesk, (data: WsStartRemoteDesk) => {
+      console.log(' ws.socketIo.on', data);
+
+      console.log(
+        '收到startRemoteDesk2',
+        data.data.receiver,
+        mySocketId.value,
+        JSON.stringify(data)
+      );
+      if (data.data.receiver === mySocketId.value) {
+        appStore.remoteDesk.set(data.data.sender, {
+          sender: data.data.sender,
+          isClose: false,
+          maxBitrate: data.data.maxBitrate,
+          maxFramerate: data.data.maxFramerate,
+          resolutionRatio: data.data.resolutionRatio,
+          videoContentHint: data.data.videoContentHint,
+          audioContentHint: data.data.audioContentHint,
+        });
+        handleRTC(data.data.sender);
+      }
+    });
+  } catch (error) {
+    console.log('errorerrorerrorerrorerrorerror', error);
+  }
 }
 
 async function handleDesktopStream(chromeMediaSourceId) {
