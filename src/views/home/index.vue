@@ -265,50 +265,54 @@ const notifyWoxin = () => {
 onMounted(() => {
   //1-- 断开连接
   window.electronAPI.ipcRenderer.on('remoteDesktopDisconnect', (_event) => {
-    console.log('断开连接');
+    console.log('断开连接', appStore.remoteDesk);
     networkStore.removeWs(roomId.value);
   });
   //1-- 握信通知开始链接
-  // window.electronAPI.ipcRenderer.on(
-  //   'remoteDesktopControlMainInIt',
-  //   (_event, params) => {
-  //     console.log('paramsparamsparams', params);
-  // roomId.value = params.remoteRoomId;
-  // 被控制人的ims号
-  // backToUser.value = params.backToUser;
-  // 以下代码是控制对方执行
-  // if (!params.remoteRoomId) {
-  clearInterval(tiemr.value);
-  tiemr.value = setInterval(() => {
-    console.log('以下代码是控制对方执行');
-    networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
-      requestId: getRandomString(8),
-      msgType: WsMsgTypeEnum.updateDeskUser,
-      data: {
+  window.electronAPI.ipcRenderer.on(
+    'remoteDesktopControlMainInIt',
+    (_event, params) => {
+      console.log('paramsparamsparams', params);
+      // roomId.value = params.remoteRoomId;
+      // 被控制人的ims号
+      backToUser.value = params.backToUser;
+      // 以下代码是控制对方执行
+      if (!params.remoteRoomId) {
+        clearInterval(tiemr.value);
+        tiemr.value = setInterval(() => {
+          networkStore.wsMap
+            .get(roomId.value)
+            ?.send<WsStartRemoteDesk['data']>({
+              requestId: getRandomString(8),
+              msgType: WsMsgTypeEnum.updateDeskUser,
+              data: {
+                roomId: roomId.value,
+                sender: mySocketId.value,
+                receiver: receiverId.value,
+                maxBitrate: currentMaxBitrate.value,
+                maxFramerate: currentMaxFramerate.value,
+                resolutionRatio: currentResolutionRatio.value,
+                videoContentHint: currentVideoContentHint.value,
+                audioContentHint: currentAudioContentHint.value,
+                deskUserUuid: deskUserUuid.value || '',
+                deskUserPassword: deskUserPassword.value || '',
+                remoteDeskUserUuid: remoteDeskUserUuid.value || '',
+              },
+            });
+        }, 1000 * 1);
+      } else {
+        //被远程的人执行  去发消息给控制人
+        notifyWoxin();
+      }
+      initUser();
+      handleMainWindowSetAlwaysOnTop(true);
+      initWs({
         roomId: roomId.value,
-        sender: mySocketId.value,
-        receiver: receiverId.value,
-        maxBitrate: currentMaxBitrate.value,
-        maxFramerate: currentMaxFramerate.value,
-        resolutionRatio: currentResolutionRatio.value,
-        videoContentHint: currentVideoContentHint.value,
-        audioContentHint: currentAudioContentHint.value,
-        deskUserUuid: deskUserUuid.value || '',
-        deskUserPassword: deskUserPassword.value || '',
-        remoteDeskUserUuid: remoteDeskUserUuid.value || '',
-      },
-    });
-  }, 1000 * 1);
-  handleMainWindowSetAlwaysOnTop(true);
-  // }
-  initUser();
-
-  initWs({
-    roomId: roomId.value,
-    isAnchor: false,
-    isRemoteDesk: true,
-  });
-
+        isAnchor: false,
+        isRemoteDesk: true,
+      });
+    }
+  );
   console.log('route.query', route.query);
   if (route.query.windowId !== undefined) {
     windowId.value = `${route.query.windowId as string}`;
@@ -317,8 +321,6 @@ onMounted(() => {
       type: 'getMainWindowId',
     });
   }
-  //   }
-  // );
 
   window.electronAPI.ipcRenderer.on(
     'powerMonitor-suspend',
@@ -434,7 +436,7 @@ onMounted(() => {
 });
 
 async function initUser() {
-  console.log('deskUserUuid.value', deskUserUuid.value);
+  console.log('deskUserUuid.value', deskUserUuid.value, backToUser.value);
   console.log('deskUserPassword.value', deskUserPassword.value);
   if (!deskUserUuid.value || !deskUserPassword.value) {
     const res = await fetchDeskUserCreate();
@@ -446,10 +448,6 @@ async function initUser() {
       newpassword.value = res.data.password!;
       setUuid(res.data.uuid!);
       setPassword(res.data.password!);
-      //被远程的人执行
-      if (!backToUser.value) {
-        notifyWoxin();
-      }
     }
   } else {
     const res = await fetchDeskUserLogin({
@@ -459,11 +457,6 @@ async function initUser() {
     if (res.code === 200) {
       setUuid(deskUserUuid.value);
       setPassword(deskUserPassword.value);
-      //被远程的人执行
-
-      if (!backToUser.value) {
-        notifyWoxin();
-      }
     }
   }
 }
@@ -507,9 +500,8 @@ function handleWsMsg() {
   console.log('收到startRemoteDesk1', ws);
   console.log('WsMsgTypeEnum', WsMsgTypeEnum.startRemoteDesk);
   try {
-    console.log(' ws.socketIo.on', ws.socketIo.on);
-
     ws.socketIo.on(WsMsgTypeEnum.startRemoteDesk, (data: WsStartRemoteDesk) => {
+      console.log(' ws.socketIo.on', data);
       console.log(
         '收到startRemoteDesk2',
         data.data.receiver,
