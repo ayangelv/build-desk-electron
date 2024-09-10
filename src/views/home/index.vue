@@ -269,56 +269,56 @@ onMounted(() => {
     networkStore.removeWs(roomId.value);
   });
   //1-- 握信通知开始链接
-  window.electronAPI.ipcRenderer.on(
-    'remoteDesktopControlMainInIt',
-    (_event, params) => {
-      console.log('paramsparamsparams', params);
-      // roomId.value = params.remoteRoomId;
-      // 被控制人的ims号
-      backToUser.value = params.backToUser;
-      // 以下代码是控制对方执行
-      // if (!params.remoteRoomId) {
-      clearInterval(tiemr.value);
-      tiemr.value = setInterval(() => {
-        console.log('以下代码是控制对方执行');
-        networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
-          requestId: getRandomString(8),
-          msgType: WsMsgTypeEnum.updateDeskUser,
-          data: {
-            roomId: roomId.value,
-            sender: mySocketId.value,
-            receiver: receiverId.value,
-            maxBitrate: currentMaxBitrate.value,
-            maxFramerate: currentMaxFramerate.value,
-            resolutionRatio: currentResolutionRatio.value,
-            videoContentHint: currentVideoContentHint.value,
-            audioContentHint: currentAudioContentHint.value,
-            deskUserUuid: deskUserUuid.value || '',
-            deskUserPassword: deskUserPassword.value || '',
-            remoteDeskUserUuid: remoteDeskUserUuid.value || '',
-          },
-        });
-      }, 1000 * 1);
-      // }
-      handleMainWindowSetAlwaysOnTop(true);
-      initUser();
-
-      initWs({
+  // window.electronAPI.ipcRenderer.on(
+  //   'remoteDesktopControlMainInIt',
+  //   (_event, params) => {
+  //     console.log('paramsparamsparams', params);
+  // roomId.value = params.remoteRoomId;
+  // 被控制人的ims号
+  // backToUser.value = params.backToUser;
+  // 以下代码是控制对方执行
+  // if (!params.remoteRoomId) {
+  clearInterval(tiemr.value);
+  tiemr.value = setInterval(() => {
+    console.log('以下代码是控制对方执行');
+    networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
+      requestId: getRandomString(8),
+      msgType: WsMsgTypeEnum.updateDeskUser,
+      data: {
         roomId: roomId.value,
-        isAnchor: false,
-        isRemoteDesk: true,
-      });
+        sender: mySocketId.value,
+        receiver: receiverId.value,
+        maxBitrate: currentMaxBitrate.value,
+        maxFramerate: currentMaxFramerate.value,
+        resolutionRatio: currentResolutionRatio.value,
+        videoContentHint: currentVideoContentHint.value,
+        audioContentHint: currentAudioContentHint.value,
+        deskUserUuid: deskUserUuid.value || '',
+        deskUserPassword: deskUserPassword.value || '',
+        remoteDeskUserUuid: remoteDeskUserUuid.value || '',
+      },
+    });
+  }, 1000 * 1);
+  handleMainWindowSetAlwaysOnTop(true);
+  // }
+  initUser();
 
-      console.log('route.query', route.query);
-      if (route.query.windowId !== undefined) {
-        windowId.value = `${route.query.windowId as string}`;
-      } else {
-        window.electronAPI.ipcRenderer.send('getMainWindowId', {
-          type: 'getMainWindowId',
-        });
-      }
-    }
-  );
+  initWs({
+    roomId: roomId.value,
+    isAnchor: false,
+    isRemoteDesk: true,
+  });
+
+  console.log('route.query', route.query);
+  if (route.query.windowId !== undefined) {
+    windowId.value = `${route.query.windowId as string}`;
+  } else {
+    window.electronAPI.ipcRenderer.send('getMainWindowId', {
+      type: 'getMainWindowId',
+    });
+  }
+  //   }
+  // );
 
   window.electronAPI.ipcRenderer.on(
     'powerMonitor-suspend',
@@ -447,7 +447,7 @@ async function initUser() {
       setUuid(res.data.uuid!);
       setPassword(res.data.password!);
       //被远程的人执行
-      if (backToUser.value) {
+      if (!backToUser.value) {
         notifyWoxin();
       }
     }
@@ -461,7 +461,7 @@ async function initUser() {
       setPassword(deskUserPassword.value);
       //被远程的人执行
 
-      if (backToUser.value) {
+      if (!backToUser.value) {
         notifyWoxin();
       }
     }
