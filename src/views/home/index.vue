@@ -270,50 +270,60 @@ onMounted(() => {
     handleCloseAll();
   });
   //1-- 握信通知开始链接
+  // window.electronAPI.ipcRenderer.on(
+  //   'remoteDesktopControlMainInIt',
+  //   (_event, params) => {
+  // console.log('paramsparamsparams', params);
+  // roomId.value = params.remoteRoomId;
+  // 被控制人的ims号
+  // backToUser.value = params.backToUser;
+  //控制端，发送startRemoteDesk消息，开始远程控制。
+  // if (!params.remoteRoomId) {
+  clearInterval(tiemr.value);
+  tiemr.value = setInterval(() => {
+    networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
+      requestId: getRandomString(8),
+      msgType: WsMsgTypeEnum.updateDeskUser,
+      data: {
+        roomId: roomId.value,
+        sender: mySocketId.value,
+        receiver: receiverId.value,
+        maxBitrate: currentMaxBitrate.value,
+        maxFramerate: currentMaxFramerate.value,
+        resolutionRatio: currentResolutionRatio.value,
+        videoContentHint: currentVideoContentHint.value,
+        audioContentHint: currentAudioContentHint.value,
+        deskUserUuid: deskUserUuid.value || '',
+        deskUserPassword: deskUserPassword.value || '',
+        remoteDeskUserUuid: remoteDeskUserUuid.value || '',
+      },
+    });
+  }, 1000 * 1);
+  // } else {
+  //被远程的人执行  去发消息给控制人
+  console.log('被远程的人执行');
+  //   notifyWoxin();
+  // }
+
+  initUser();
+  handleMainWindowSetAlwaysOnTop(true);
+  initWs({
+    roomId: roomId.value,
+    isAnchor: false,
+    isRemoteDesk: true,
+  });
+
   window.electronAPI.ipcRenderer.on(
     'remoteDesktopControlMainInIt',
     (_event, params) => {
-      console.log('paramsparamsparams', params);
-      // roomId.value = params.remoteRoomId;
-      // 被控制人的ims号
-      backToUser.value = params.backToUser;
-      // 以下代码是控制对方执行
       if (!params.remoteRoomId) {
-        clearInterval(tiemr.value);
-        tiemr.value = setInterval(() => {
-          networkStore.wsMap
-            .get(roomId.value)
-            ?.send<WsStartRemoteDesk['data']>({
-              requestId: getRandomString(8),
-              msgType: WsMsgTypeEnum.updateDeskUser,
-              data: {
-                roomId: roomId.value,
-                sender: mySocketId.value,
-                receiver: receiverId.value,
-                maxBitrate: currentMaxBitrate.value,
-                maxFramerate: currentMaxFramerate.value,
-                resolutionRatio: currentResolutionRatio.value,
-                videoContentHint: currentVideoContentHint.value,
-                audioContentHint: currentAudioContentHint.value,
-                deskUserUuid: deskUserUuid.value || '',
-                deskUserPassword: deskUserPassword.value || '',
-                remoteDeskUserUuid: remoteDeskUserUuid.value || '',
-              },
-            });
-        }, 1000 * 1);
-      } else {
-        //被远程的人执行  去发消息给控制人
         notifyWoxin();
       }
-      initUser();
-      handleMainWindowSetAlwaysOnTop(true);
-      initWs({
-        roomId: roomId.value,
-        isAnchor: false,
-        isRemoteDesk: true,
-      });
     }
   );
+
+  //   }
+  // );
   console.log('route.query', route.query);
   if (route.query.windowId !== undefined) {
     windowId.value = `${route.query.windowId as string}`;
@@ -427,7 +437,7 @@ onMounted(() => {
     chromeMediaSourceId.value = source.stream.id;
     handleDesktopStream(source.stream.id);
   });
-
+  // 握信控制人同意
   window.electronAPI.ipcRenderer.on('handle-start-remote', (_event, params) => {
     console.log('handle handle-start-remote', params);
     remoteDeskUserUuid.value = params.deskUserUuid;
@@ -548,7 +558,7 @@ async function handleDesktopStream(chromeMediaSourceId) {
 }
 
 async function handleRTC(receiver) {
-  console.log(anchorStream.value, 'handleRTChandleRTC');
+  console.log(anchorStream.value, receiver, 'handleRTChandleRTC');
 
   if (!anchorStream.value) return;
   try {
@@ -642,6 +652,15 @@ function startRemote() {
       useWorkAreaSize: true,
     },
   });
+  console.log(
+    'deskUserUuid:' + deskUserUuid.value,
+    ' deskUserPassword: ' + deskUserPassword.value,
+    ' remoteDeskUserUuid:' + remoteDeskUserUuid.value,
+    ' receiverId: ' + receiverId.value,
+    '  width: ' + appStore.workAreaSize.width,
+    '  height: ' + appStore.workAreaSize.height,
+    '  remoteRoomId: ' + roomId.value
+  );
 }
 
 function handleCloseAll() {
@@ -800,7 +819,7 @@ watch(
       console.log('远程连接断开', item);
 
       if (item.isClose) {
-        networkStore.removeWs(roomId.value);
+        // networkStore.removeWs(roomId.value);
 
         window.$notification.warning({
           content: `${item.sender}远程连接断开`,

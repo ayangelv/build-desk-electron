@@ -279,6 +279,8 @@ const endRemote = () => {
     onPositiveClick: () => {
       message.success('已关闭远程控制');
       handleWinClose();
+      handleClose();
+      networkStore.removeAllWsAndRtc();
     },
     onNegativeClick: () => {},
   });
@@ -504,7 +506,6 @@ onMounted(() => {
   // roomId.value = route.query.remoteRoomId;
 
   videoWrapRef.value?.addEventListener('wheel', handleMouseWheel);
-
   window.addEventListener('keydown', handleKeyDown);
   initWs({
     roomId: roomId.value,
@@ -622,7 +623,7 @@ function loopGetSettings() {
       ?.localStream?.getVideoTracks()
       .forEach((item) => {
         videoSettings.value = item.getSettings();
-        console.log(JSON.stringify(videoSettings.value));
+        console.log('videoSettings', JSON.stringify(videoSettings.value));
       });
   }, 1000);
 }
@@ -662,6 +663,7 @@ function loopGetSettings() {
 
 function handleMouseWheel(e: WheelEvent) {
   e.preventDefault();
+  console.log('getRandomString(8)', getRandomString(8), joinedReceiver.value);
   if (e.deltaY > 0) {
     networkStore.rtcMap
       .get(joinedReceiver.value)
@@ -736,9 +738,8 @@ function handleMouseWheel(e: WheelEvent) {
 
 function handleClose() {
   // 关闭所有远程
+  console.log('关闭所有远程');
   networkStore.removeRtc(joinedReceiver.value);
-  // 关闭所有连接
-  // networkStore.removeAllWs();
 }
 
 function reInit() {
@@ -775,6 +776,7 @@ watch(
       ioFlag.value = true;
       const setting = anchorStream.value?.getVideoTracks()[0].getSettings();
       newval.onmessage = (event) => {
+        console.log('onmessage', event);
         const jsondata: {
           msgType: WsMsgTypeEnum;
           requestId: string;
@@ -826,6 +828,7 @@ watch(
   () => networkStore.rtcMap,
   (newVal) => {
     newVal.forEach((item) => {
+      console.log('newVal', newVal);
       if (videoWrapRef.value) {
         console.log(item, 'item');
         console.log(videoMap, 'videoMap');
