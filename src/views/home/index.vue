@@ -266,7 +266,8 @@ onMounted(() => {
   //1-- 断开连接
   window.electronAPI.ipcRenderer.on('remoteDesktopDisconnect', (_event) => {
     console.log('断开连接', appStore.remoteDesk);
-    networkStore.removeWs(roomId.value);
+    networkStore.removeAllWsAndRtc();
+    handleCloseAll();
   });
   //1-- 握信通知开始链接
   window.electronAPI.ipcRenderer.on(
@@ -796,6 +797,8 @@ watch(
     console.log('远程连接断开', newval);
 
     newval.forEach((item) => {
+      console.log('远程连接断开', item);
+
       if (item.isClose) {
         networkStore.removeWs(roomId.value);
 
