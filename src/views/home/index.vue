@@ -266,8 +266,8 @@ onMounted(() => {
   //1-- 断开连接
   window.electronAPI.ipcRenderer.on('remoteDesktopDisconnect', (_event) => {
     console.log('断开连接', appStore.remoteDesk);
-    networkStore.removeAllWsAndRtc();
-    handleCloseAll();
+    // networkStore.removeAllWsAndRtc();
+    // handleCloseAll();
   });
   //1-- 握信通知开始链接
   // window.electronAPI.ipcRenderer.on(
@@ -316,7 +316,8 @@ onMounted(() => {
   window.electronAPI.ipcRenderer.on(
     'remoteDesktopControlMainInIt',
     (_event, params) => {
-      if (!params.remoteRoomId) {
+      console.log('remoteDesktopControlMainInItparams', params);
+      if (params.remoteRoomId) {
         notifyWoxin();
       }
     }
@@ -820,7 +821,8 @@ watch(
 
       if (item.isClose) {
         // networkStore.removeWs(roomId.value);
-
+        // networkStore.removeAllWsAndRtc();
+        // handleCloseAll();
         window.$notification.warning({
           content: `${item.sender}远程连接断开`,
           duration: 2000,
