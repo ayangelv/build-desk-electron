@@ -348,6 +348,7 @@ export class WebRTCClass {
     this.prettierLog({ msg: '开始监听pc的icecandidate事件', type: 'warn' });
     this.peerConnection.addEventListener('icecandidate', (event) => {
       this.prettierLog({ msg: 'pc收到icecandidate', type: 'warn' });
+      console.log('eventeventevent',event)
       if (event.candidate) {
         const networkStore = useNetworkStore();
         networkStore.wsMap.get(this.roomId)?.send<WsCandidateType['data']>({

@@ -668,6 +668,7 @@ export const useWebsocket = () => {
       prettierReceiveWsMsg(WsMsgTypeEnum.joined, data);
       appStore.setLiveRoomInfo(data.live_room);
       anchorInfo.value = data.anchor_info;
+      console.log('用户加入房间完成',data)
       joinedReceiver.value = data.receiver!;
     });
 
