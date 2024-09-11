@@ -1,7 +1,9 @@
 <template>
   <div class="remote-window-wrapper">
     <div class="header">
-      <div class="header-tit">正在控制 王松明 的电脑 00:37</div>
+      <div class="header-tit">
+        正在控制 {{ fromUserName }} 的电脑 {{ formattedTime }}
+      </div>
       <div class="header-window-control">
         <img
           :src="zuixiaohua"
@@ -237,7 +239,15 @@ import { Key } from '@nut-tree/shared';
 import { useDraggable } from '@vueuse/core';
 import { computeBox, getRandomString } from 'billd-utils';
 import { useDialog, useMessage } from 'naive-ui';
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+  watchEffect,
+} from 'vue';
 import { useRoute } from 'vue-router';
 
 import { fetchFindReceiverByUuid } from '@/api/deskUser';
@@ -501,10 +511,47 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyDown);
 });
 
+const fromUserName = ref();
+const timer = ref(null);
+const seconds = ref(0);
+const formattedTime = ref('');
+
+// 格式化时间为 mm:ss 格式
+const formatTime = (sec) => {
+  const minutes = Math.floor(sec / 60)
+    .toString()
+    .padStart(2, '0');
+  const secs = (sec % 60).toString().padStart(2, '0');
+  return `${minutes}:${secs}`;
+};
+
+// 更新格式化时间
+watchEffect(() => {
+  formattedTime.value = formatTime(seconds.value);
+});
+
+// 开始计时
+const startTimer = () => {
+  if (timer.value) return; // 防止重复计时
+  timer.value = setInterval(() => {
+    seconds.value++;
+  }, 1000);
+};
+
+// 停止计时
+const stopTimer = () => {
+  if (timer.value) {
+    clearInterval(timer.value);
+    timer.value = null;
+  }
+};
+
 onMounted(() => {
   console.log('route.query', route.query);
+  fromUserName.value = route.query.fromUserName;
   // roomId.value = route.query.remoteRoomId;
-
+  // 远程时间
+  startTimer();
   videoWrapRef.value?.addEventListener('wheel', handleMouseWheel);
   window.addEventListener('keydown', handleKeyDown);
   initWs({

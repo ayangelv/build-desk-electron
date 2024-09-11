@@ -262,14 +262,50 @@ const notifyWoxin = () => {
     backToUser: backToUser.value,
   });
 };
+const fromUserName = ref();
+
 onMounted(() => {
-  //1-- 断开连接
+  window.electronAPI.ipcRenderer.on(
+    'remoteDesktopControlPersonTimeWindow',
+    (_event, params) => {
+      console.log('remoteDesktopControlPersonTimeWindow');
+      // networkStore.removeAllWsAndRtc();
+      // handleCloseAll();
+      window.electronAPI.ipcRenderer.send(
+        'remoteDesktopControlPersonTimeWindow',
+        {
+          type: 'createWindow',
+          data: {
+            route: routerName.remoteDesktopControlPersonTime,
+            query: {
+              formUserName: params.formUserName,
+            },
+            y: 0,
+            useWorkAreaSize: true,
+          },
+        }
+      );
+    }
+  );
+
+  //断开连接
   window.electronAPI.ipcRenderer.on('remoteDesktopDisconnect', (_event) => {
     console.log('断开连接', appStore.remoteDesk);
     // networkStore.removeAllWsAndRtc();
     // handleCloseAll();
   });
-  //1-- 握信通知开始链接
+
+  //被控人发了的关闭远程  3步
+  window.electronAPI.ipcRenderer.on(
+    'handleWinCloseRemoteDesktopControlPerson',
+    (_event) => {
+      // 这里是关闭远程后再发送关闭窗口给握信
+      handleCloseAll();
+      window.electronAPI.ipcRenderer.send('remoteDesktopControlWindowClose');
+    }
+  );
+
+  //握信通知开始链接
   // window.electronAPI.ipcRenderer.on(
   //   'remoteDesktopControlMainInIt',
   //   (_event, params) => {
@@ -443,6 +479,7 @@ onMounted(() => {
     console.log('handle handle-start-remote', params);
     remoteDeskUserUuid.value = params.deskUserUuid;
     receiverId.value = params.receiverId;
+    fromUserName.value = params.fromUserName;
     startRemote();
   });
 });
@@ -647,6 +684,7 @@ function startRemote() {
         width: appStore.workAreaSize.width,
         height: appStore.workAreaSize.height,
         remoteRoomId: roomId.value,
+        fromUserName: fromUserName.value,
       },
       x: 0,
       y: 0,
@@ -823,6 +861,7 @@ watch(
         // networkStore.removeWs(roomId.value);
         // networkStore.removeAllWsAndRtc();
         // handleCloseAll();
+        window.electronAPI.ipcRenderer.send('remoteDesktopControlWindowClose');
         window.$notification.warning({
           content: `${item.sender}远程连接断开`,
           duration: 2000,

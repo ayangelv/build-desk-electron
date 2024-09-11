@@ -44,6 +44,9 @@ export const routerName = {
   profile: 'profile',
 
   webrtc: 'webrtc',
+  remoteDesktopControlPersonTime: 'remoteDesktopControlPersonTime',
+  remoteDesktopControlPerson: 'remoteDesktopControlPerson',
+  
 
   pull: 'pull',
   push: 'push',
@@ -60,6 +63,7 @@ export const defaultRoutes: RouteRecordRaw[] = [
       {
         name: routerName.home,
         path: '/',
+        // component: () => import('@/views/remoteDesktopControlPersonTime/index.vue'),
         component: () => import('@/views/home/index.vue'),
       },
     ],
@@ -68,6 +72,16 @@ export const defaultRoutes: RouteRecordRaw[] = [
     name: routerName.webrtc,
     path: '/webrtc',
     component: () => import('@/views/webrtc/index.vue'),
+  },
+  {
+    name: routerName.remoteDesktopControlPersonTime,
+    path: '/remoteDesktopControlPersonTime',
+    component: () => import('@/views/remoteDesktopControlPersonTime/index.vue'),
+  },
+  {
+    name: routerName.remoteDesktopControlPerson,
+    path: '/remoteDesktopControlPerson',
+    component: () => import('@/views/remoteDesktopControlPerson/index.vue'),
   },
 ];
 
