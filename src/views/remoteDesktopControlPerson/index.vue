@@ -27,24 +27,11 @@
 </template>
 
 <script lang="ts" setup>
-// import { useDialog, useMessage } from 'naive-ui';
 import { onMounted } from 'vue';
 import iconClose from './close.png';
-
-import { useWebsocket } from '@/hooks/use-websocket';
-import { useNetworkStore } from '@/store/network';
-const networkStore = useNetworkStore();
-
 onMounted(() => {});
-// const message = useMessage();
-// const dialog = useDialog();
-const endRemote = () => {
-  handleWinClose();
-  handleClose();
-  networkStore.removeAllWsAndRtc();
-};
 
-const handleWinClose = () => {
+const endRemote = () => {
   console.log('handleWinClosehandleWinClose');
   // 给握信远程主窗口发关闭通知   1步
   window.electronAPI.ipcRenderer.send(
@@ -53,12 +40,6 @@ const handleWinClose = () => {
 
   // 被控人关闭的时候也要通知主窗口关闭控制人的窗口 1步完成
   window.electronAPI.ipcRenderer.send('childWindowClose');
-};
-const { joinedReceiver } = useWebsocket();
-const handleClose = () => {
-  // 关闭所有远程
-  console.log('关闭所有远程', joinedReceiver.value);
-  networkStore.removeRtc(joinedReceiver.value);
 };
 </script>
 
