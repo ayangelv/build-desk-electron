@@ -182,7 +182,7 @@
     </div>
     <div class="footer">
       <div class="footer-btn-group">
-        <div class="btn-item">
+        <!-- <div class="btn-item">
           <div class="btn-item-icon">
             <img
               :src="iconMicroClose"
@@ -190,7 +190,7 @@
             />
           </div>
           <div class="btn-item-text">开启麦克风</div>
-        </div>
+        </div> -->
         <div class="btn-item">
           <div class="btn-item-icon">
             <img
@@ -205,6 +205,16 @@
             <img
               :src="iconHD"
               alt=""
+            />
+          </div>
+          <div
+            class="down big"
+            style="width: 80px; position: absolute; opacity: 0"
+          >
+            <n-select
+              size="medium"
+              v-model:value="currentResolutionRatio"
+              :options="resolutionRatio"
             />
           </div>
           <div class="btn-item-text">清晰画质</div>
@@ -272,7 +282,6 @@ import { videoFullBox } from '@/utils';
 import iconClose from './close.png';
 import guanbi from './guanbi.svg';
 import iconHD from './hd-line.png';
-import iconMicroClose from './huatong-guan-L.png';
 // import iconMicro from './huatong-L.png';
 import iconRatio from './icon-ratio.png';
 import zuidahua from './zuidahua.svg';
@@ -389,8 +398,10 @@ watch(
 watch(
   () => connectStatus.value,
   (newval) => {
+    console.log('connectStatus', newval);
     if (newval === WsConnectStatusEnum.connect) {
       clearInterval(loopReconnectTimer.value);
+      console.log('connectStatus', newval);
       // networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
       //   requestId: getRandomString(8),
       //   msgType: WsMsgTypeEnum.startRemoteDesk,
@@ -805,15 +816,19 @@ function reInit() {
   }, 1000);
 }
 
-// watch(
-//   () => appStore.remoteDesk.get(joinedReceiver.value)?.isClose,
-//   (newval) => {
-//     window.$message.warning(`isClose-${newval}`);
-//     if (newval) {
-//       reInit();
-//     }
-//   }
-// );
+watch(
+  () => appStore.remoteDesk.get(joinedReceiver.value)?.isClose,
+  (newval) => {
+    // 收到被控方关闭远程
+    console.log('isCloseisCloseisClose', newval);
+    //     window.$message.warning(`isClose-${newval}`);
+    if (newval) {
+      handleWinClose();
+
+      //       reInit();
+    }
+  }
+);
 
 watch(
   () => networkStore.rtcMap.get(joinedReceiver.value)?.cbDataChannel,
@@ -1098,7 +1113,7 @@ function handleMouseMove(event: MouseEvent) {
   const yInsideElement = clickY - rect.top;
   const x = (xInsideElement / rect.width) * 1000;
   const y = (yInsideElement / rect.height) * 1000;
-  console.log('handleMouseMove', x, y, xInsideElement, yInsideElement);
+  // console.log('handleMouseMove', x, y, xInsideElement, yInsideElement);
   networkStore.rtcMap
     .get(joinedReceiver.value)
     ?.dataChannelSend<WsRemoteDeskBehaviorType['data']>({

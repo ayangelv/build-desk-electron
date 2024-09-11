@@ -304,7 +304,7 @@ onMounted(() => {
       appStore.remoteDesk.forEach((item) => {
         networkStore.removeRtc(item.sender);
       });
-      networkStore.removeAllWsAndRtc();
+      // networkStore.removeAllWsAndRtc();
 
       window.electronAPI.ipcRenderer.send(
         'handleWinCloseRemoteDesktopControlPerson3'
