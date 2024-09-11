@@ -263,14 +263,13 @@ const notifyWoxin = () => {
   });
 };
 const fromUserName = ref();
-
+// 是发起人吗
+const isInitiator = ref();
 onMounted(() => {
+  // 被控制人收到同意之后去创建被控制人的窗口
   window.electronAPI.ipcRenderer.on(
     'remoteDesktopControlPersonTimeWindow',
     (_event, params) => {
-      console.log('remoteDesktopControlPersonTimeWindow');
-      // networkStore.removeAllWsAndRtc();
-      // handleCloseAll();
       window.electronAPI.ipcRenderer.send(
         'remoteDesktopControlPersonTimeWindow',
         {
@@ -358,6 +357,7 @@ onMounted(() => {
     'remoteDesktopControlMainInIt',
     (_event, params) => {
       console.log('remoteDesktopControlMainInItparams', params);
+      isInitiator.value = params.remoteRoomId;
       if (params.remoteRoomId) {
         notifyWoxin();
       }
@@ -869,7 +869,15 @@ watch(
           duration: 2000,
         });
         appStore.remoteDesk.delete(item.sender);
-        window.electronAPI.ipcRenderer.send('childWindowClose');
+        // 控制人就关闭操作主窗口
+        if (!isInitiator.value) {
+          window.electronAPI.ipcRenderer.send('childWindowClose');
+        } else {
+          // 被控制人就关闭时间和右上角关闭窗口
+          window.electronAPI.ipcRenderer.send(
+            'handleWinCloseRemoteDesktopControlPerson3'
+          );
+        }
 
         return;
       }
