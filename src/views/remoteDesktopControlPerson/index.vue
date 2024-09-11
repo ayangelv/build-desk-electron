@@ -50,6 +50,9 @@ const handleWinClose = () => {
   window.electronAPI.ipcRenderer.send(
     'handleWinCloseRemoteDesktopControlPerson'
   );
+
+  // 被控人关闭的时候也要通知主窗口关闭控制人的窗口
+  window.electronAPI.ipcRenderer.send('childWindowClose');
 };
 const { joinedReceiver } = useWebsocket();
 const handleClose = () => {

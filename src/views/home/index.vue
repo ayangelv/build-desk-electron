@@ -861,8 +861,8 @@ watch(
         // networkStore.removeWs(roomId.value);
         // networkStore.removeAllWsAndRtc();
         // handleCloseAll();
-        window.electronAPI.ipcRenderer.send('remoteDesktopControlWindowClose');
-        window.electronAPI.ipcRenderer.send('childWindowClose');
+        // window.electronAPI.ipcRenderer.send('remoteDesktopControlWindowClose');
+        // window.electronAPI.ipcRenderer.send('childWindowClose');
 
         window.$notification.warning({
           content: `${item.sender}远程连接断开`,
