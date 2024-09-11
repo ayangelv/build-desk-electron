@@ -863,17 +863,14 @@ watch(
       console.log('远程连接断开', item);
 
       if (item.isClose) {
-        // networkStore.removeWs(roomId.value);
-        // networkStore.removeAllWsAndRtc();
-        // handleCloseAll();
-        // window.electronAPI.ipcRenderer.send('remoteDesktopControlWindowClose');
-        // window.electronAPI.ipcRenderer.send('childWindowClose');
-
+        // 被控制人执行这里
         window.$notification.warning({
           content: `${item.sender}远程连接断开`,
           duration: 2000,
         });
         appStore.remoteDesk.delete(item.sender);
+        window.electronAPI.ipcRenderer.send('childWindowClose');
+
         return;
       }
       currentMaxBitrate.value = item.maxBitrate;
