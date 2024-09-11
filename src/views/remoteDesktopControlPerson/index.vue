@@ -48,10 +48,10 @@ const handleWinClose = () => {
   console.log('handleWinClosehandleWinClose');
   // 给握信远程主窗口发关闭通知   1步
   window.electronAPI.ipcRenderer.send(
-    'handleWinCloseRemoteDesktopControlPerson'
+    'handleWinCloseRemoteDesktopControlPerson1'
   );
 
-  // 被控人关闭的时候也要通知主窗口关闭控制人的窗口
+  // 被控人关闭的时候也要通知主窗口关闭控制人的窗口 1步完成
   window.electronAPI.ipcRenderer.send('childWindowClose');
 };
 const { joinedReceiver } = useWebsocket();

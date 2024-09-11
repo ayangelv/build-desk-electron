@@ -297,11 +297,13 @@ onMounted(() => {
 
   //被控人发了的关闭远程  3步
   window.electronAPI.ipcRenderer.on(
-    'handleWinCloseRemoteDesktopControlPerson',
+    'handleWinCloseRemoteDesktopControlPerson2',
     (_event) => {
       // 这里是关闭远程后再发送关闭窗口给握信
       handleCloseAll();
-      window.electronAPI.ipcRenderer.send('remoteDesktopControlWindowClose');
+      window.electronAPI.ipcRenderer.send(
+        'handleWinCloseRemoteDesktopControlPerson3'
+      );
     }
   );
 
