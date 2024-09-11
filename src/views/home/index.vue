@@ -300,7 +300,10 @@ onMounted(() => {
     'handleWinCloseRemoteDesktopControlPerson2',
     (_event) => {
       // 这里是关闭远程后再发送关闭窗口给握信
-      handleCloseAll();
+      // handleCloseAll();
+      appStore.remoteDesk.forEach((item) => {
+        networkStore.removeRtc(item.sender);
+      });
       window.electronAPI.ipcRenderer.send(
         'handleWinCloseRemoteDesktopControlPerson3'
       );
