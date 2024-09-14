@@ -689,25 +689,31 @@ function startRemote() {
         deskUserPassword: deskUserPassword.value,
         remoteDeskUserUuid: remoteDeskUserUuid.value,
         receiverId: receiverId.value,
+        // width: parseInt(appStore.workAreaSize.width * 0.8),
+        // height: parseInt(appStore.workAreaSize.height * 0.8),
         width: appStore.workAreaSize.width,
         height: appStore.workAreaSize.height,
         remoteRoomId: roomId.value,
         fromUserName: fromUserName.value,
       },
+      // width: parseInt(appStore.workAreaSize.width * 0.8),
+      // height: parseInt(appStore.workAreaSize.height * 0.8),
+      width: appStore.workAreaSize.width,
+      height: appStore.workAreaSize.height,
       x: 0,
       y: 0,
       useWorkAreaSize: true,
     },
   });
-  console.log(
-    'deskUserUuid:' + deskUserUuid.value,
-    ' deskUserPassword: ' + deskUserPassword.value,
-    ' remoteDeskUserUuid:' + remoteDeskUserUuid.value,
-    ' receiverId: ' + receiverId.value,
-    '  width: ' + appStore.workAreaSize.width,
-    '  height: ' + appStore.workAreaSize.height,
-    '  remoteRoomId: ' + roomId.value
-  );
+  // console.log(
+  //   'deskUserUuid:' + deskUserUuid.value,
+  //   ' deskUserPassword: ' + deskUserPassword.value,
+  //   ' remoteDeskUserUuid:' + remoteDeskUserUuid.value,
+  //   ' receiverId: ' + receiverId.value,
+  //   '  width: ' + appStore.workAreaSize.width,
+  //   '  height: ' + appStore.workAreaSize.height,
+  //   '  remoteRoomId: ' + roomId.value
+  // );
 }
 
 function handleCloseAll() {

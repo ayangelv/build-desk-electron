@@ -1,188 +1,48 @@
 <template>
-  <div class="remote-window-wrapper">
-    <div class="header">
-      <div class="header-tit">
-        正在控制 {{ fromUserName }} 的电脑 {{ formattedTime }}
-      </div>
-      <div class="header-window-control">
-        <img
-          :src="zuixiaohua"
-          alt=""
-          @click="handleWinMin"
-        />
-        <img
-          :src="zuidahua"
-          alt=""
-          @click="handleWinMax"
-        />
-        <img
-          :src="guanbi"
-          alt=""
-          @click="endRemote"
-        />
-      </div>
+  <div class="header">
+    <div class="header-tit">
+      正在控制 {{ fromUserName }} 的电脑 {{ formattedTime }}
     </div>
-    <div class="wrap">
-      <!-- <div
-        class="drag"
-        :style="style"
-        ref="dragEl"
-      >
-        <span
-          class="txt"
-          @click="showDetail = !showDetail"
-        >
-          连接详情
-        </span>
-
+    <div class="header-window-control">
+      <img
+        :src="zuixiaohua"
+        alt=""
+        @click="handleWinMin"
+      />
+      <img
+        :src="zuidahua"
+        alt=""
+        @click="handleWinMax()"
+      />
+      <img
+        :src="guanbi"
+        alt=""
+        @click="endRemote"
+      />
+    </div>
+  </div>
+  <div
+    class="max-c"
+    ref="maxCRef"
+  >
+    <div
+      class="remote-window-wrapper"
+      ref="remoteWindowWrapperref"
+    >
+      <div class="wrap">
         <div
-          class="info"
-          :class="{ show: showDetail }"
-        >
-          <div>wss：{{ WEBSOCKET_URL }}</div>
-          <div>axios：{{ AXIOS_BASEURL }}</div>
-          <div>joinedReceiver：{{ joinedReceiver }}</div>
-          <n-button @click="mockClick">mockClick</n-button>
-          <n-button @click="windowReload">刷新页面</n-button>
-          <n-button @click="handleDebug">打开调试</n-button>
-          <n-button>
-            <input
-              ref="uploadRef"
-              type="file"
-              class="input-upload"
-              multiple
-              @change="uploadChange"
-            />
-            传输文件
-          </n-button>
-          <div>
-            <span class="item">
-              分辨率：<span v-if="videoSettings?.width">
-                {{ videoSettings?.width || '-' }}x{{
-                  videoSettings?.height || '-'
-                }}
-              </span>
-              <span v-else>-</span>
-            </span>
-            <span class="item">
-              帧率：{{ videoSettings?.frameRate?.toFixed(2) || '-' }}
-            </span>
-          </div>
-          <n-input-group>
-            <n-button>窗口id</n-button>
-            <n-input
-              v-model:value="windowId"
-              :style="{ width: '200px' }"
-              disabled
-            />
-            <n-button @click="copyToClipBoard(windowId)">复制</n-button>
-          </n-input-group>
-
-          <n-input-group>
-            <n-input-group-label>uuid</n-input-group-label>
-            <n-input
-              v-model:value="deskUserUuid"
-              :style="{ width: '200px' }"
-              disabled
-            />
-          </n-input-group>
-          <n-input-group>
-            <n-input-group-label>被控uuid</n-input-group-label>
-            <n-input
-              v-model:value="remoteDeskUserUuid"
-              :style="{ width: '200px' }"
-              disabled
-            />
-          </n-input-group>
-          <n-input-group>
-            <n-button>我的设备</n-button>
-            <n-input
-              v-model:value="mySocketId"
-              :style="{ width: '200px' }"
-              disabled
-            />
-            <n-button @click="copyToClipBoard(mySocketId)">复制</n-button>
-          </n-input-group>
-
-          <n-input-group>
-            <n-button>控制设备</n-button>
-            <n-input
-              v-model:value="joinedReceiver"
-              :style="{ width: '200px' }"
-              disabled
-            />
-            <n-button @click="copyToClipBoard(joinedReceiver)">复制</n-button>
-          </n-input-group>
-          <div class="rtc-config">
-            <div class="item">
-              <div class="txt">码率：</div>
-              <div class="down">
-                <n-select
-                  size="small"
-                  v-model:value="currentMaxBitrate"
-                  :options="maxBitrate"
-                />
-              </div>
-            </div>
-            <div class="item">
-              <div class="txt">帧率：</div>
-              <div class="down">
-                <n-select
-                  size="small"
-                  v-model:value="currentMaxFramerate"
-                  :options="maxFramerate"
-                />
-              </div>
-            </div>
-            <div class="item">
-              <div class="txt">分辨率：</div>
-              <div class="down big">
-                <n-select
-                  size="small"
-                  v-model:value="currentResolutionRatio"
-                  :options="resolutionRatio"
-                />
-              </div>
-            </div>
-          </div>
-          <div class="rtc-config">
-            <div class="item">
-              <div class="txt">视频内容：</div>
-              <div class="down">
-                <n-select
-                  size="small"
-                  v-model:value="currentVideoContentHint"
-                  :options="videoContentHint"
-                />
-              </div>
-            </div>
-            <div class="item">
-              <div class="txt">音频内容：</div>
-              <div class="down big">
-                <n-select
-                  size="small"
-                  v-model:value="currentAudioContentHint"
-                  :options="audioContentHint"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> -->
-
-      <div
-        class="remote-video"
-        ref="videoWrapRef"
-        @mousedown="handleMouseDown"
-        @mousemove="handleMouseMove"
-        @mouseup="handleMouseUp"
-        @dblclick="handleDoublelclick"
-        @contextmenu="handleContextmenu"
-      ></div>
-    </div>
-    <div class="footer">
-      <div class="footer-btn-group">
-        <!-- <div class="btn-item">
+          class="remote-video"
+          ref="videoWrapRef"
+          @mousedown="handleMouseDown"
+          @mousemove="handleMouseMove"
+          @mouseup="handleMouseUp"
+          @dblclick="handleDoublelclick"
+          @contextmenu="handleContextmenu"
+        ></div>
+      </div>
+      <div class="footer">
+        <div class="footer-btn-group">
+          <!-- <div class="btn-item">
           <div class="btn-item-icon">
             <img
               :src="iconMicroClose"
@@ -191,56 +51,60 @@
           </div>
           <div class="btn-item-text">开启麦克风</div>
         </div> -->
-        <div class="btn-item">
-          <div class="btn-item-icon">
-            <img
-              :src="iconRatio"
-              alt=""
-            />
+          <div class="btn-item">
+            <div
+              class="btn-item-icon"
+              @click="handRemoteWindowWrapper()"
+            >
+              <img
+                :src="iconRatio"
+                alt=""
+              />
+            </div>
+            <div class="btn-item-text">{{ isMax ? '自适应' : '原始大小' }}</div>
           </div>
-          <div class="btn-item-text">原始大小</div>
-        </div>
-        <div class="btn-item">
-          <div class="btn-item-icon">
-            <img
-              :src="iconHD"
-              alt=""
-            />
+          <div class="btn-item">
+            <div class="btn-item-icon">
+              <img
+                :src="iconHD"
+                alt=""
+              />
+            </div>
+            <div
+              class="down big"
+              style="width: 100px; position: absolute; opacity: 0"
+            >
+              <n-select
+                size="medium"
+                v-model:value="currentResolutionRatio"
+                :options="resolutionRatio"
+              />
+            </div>
+            <div class="btn-item-text">清晰画质</div>
           </div>
           <div
-            class="down big"
-            style="width: 80px; position: absolute; opacity: 0"
+            class="btn-item"
+            @click="endRemote"
           >
-            <n-select
-              size="medium"
-              v-model:value="currentResolutionRatio"
-              :options="resolutionRatio"
-            />
+            <div class="btn-item-icon btn-item-icon--close">
+              <img
+                :src="iconClose"
+                alt=""
+              />
+            </div>
+            <div class="btn-item-text">结束</div>
           </div>
-          <div class="btn-item-text">清晰画质</div>
-        </div>
-        <div
-          class="btn-item"
-          @click="endRemote"
-        >
-          <div class="btn-item-icon btn-item-icon--close">
-            <img
-              :src="iconClose"
-              alt=""
-            />
-          </div>
-          <div class="btn-item-text">结束</div>
         </div>
       </div>
-    </div>
 
-    <!-- <div
+      <!-- <div
       v-if="showLoading"
       class="loading"
     >
       <div class="txt">loading</div>
       <n-button @click="handleDebug">打开调试</n-button>
     </div> -->
+    </div>
   </div>
 </template>
 
@@ -310,6 +174,26 @@ const handleWinClose = () => {
 };
 const handleWinMin = () => {
   window.electronAPI.ipcRenderer.send('childWindowMinimize');
+};
+// 原始大小
+const remoteWindowWrapperref = ref();
+const maxCRef = ref();
+const isMax = ref(true);
+const handRemoteWindowWrapper = () => {
+  isMax.value = !isMax.value;
+  if (!isMax.value) {
+    videoWrapRef.value.style.width = '82vw';
+    videoWrapRef.value.style.height = '86vh';
+    videoWrapRef.value.style.margin = '0 auto';
+    remoteWindowWrapperref.value.style.height = ' calc(100vh - 145px)';
+    maxCRef.value.style.overflowY = 'auto';
+  } else {
+    videoWrapRef.value.style.width = '100%';
+    videoWrapRef.value.style.height = '100%';
+    videoWrapRef.value.style.margin = '0 auto';
+    remoteWindowWrapperref.value.style.height = '100vh';
+    maxCRef.value.style.overflowY = 'scroll';
+  }
 };
 const handleWinMax = () => {
   window.electronAPI.ipcRenderer.send('childWindowMaximize');
@@ -681,8 +565,25 @@ function loopGetSettings() {
       ?.localStream?.getVideoTracks()
       .forEach((item) => {
         videoSettings.value = item.getSettings();
-        console.log('videoSettings', JSON.stringify(videoSettings.value));
+        console.log('videoSettings', item);
       });
+    // const rect = videoWrapRef.value.getBoundingClientRect();
+    // console.log('rectrectrect', rect);
+    // const res = computeBox({
+    //   width: rect.width,
+    //   height: rect.height,
+    //   maxHeight: rect.height,
+    //   minHeight: 0,
+    //   maxWidth: rect.width,
+    //   minWidth: 0,
+    // });
+    // console.log('resresresres', res);
+
+    // networkStore.rtcMap.forEach((item) => {
+    //   console.log('itemitem', item);
+    //   item.videoEl.style.width = `${res.width as number}px`;
+    //   item.videoEl.style.height = `${res.height as number}px`;
+    // });
   }, 1000);
 }
 
@@ -890,10 +791,7 @@ watch(
   () => networkStore.rtcMap,
   (newVal) => {
     newVal.forEach((item) => {
-      console.log('newVal', newVal);
       if (videoWrapRef.value) {
-        console.log(item, 'item');
-        console.log(videoMap, 'videoMap');
         if (videoMap.value.has(item.receiver)) {
           return;
         }
@@ -901,6 +799,7 @@ watch(
         item.videoEl.addEventListener('loadedmetadata', () => {
           if (!videoWrapRef.value) return;
           const rect = videoWrapRef.value.getBoundingClientRect();
+          console.log('rectrect', rect);
           const res = computeBox({
             width: item.videoEl.videoWidth,
             height: item.videoEl.videoHeight,
@@ -909,7 +808,7 @@ watch(
             maxWidth: rect.width,
             minWidth: 0,
           });
-
+          console.log('videoFullBox', res);
           videoFullBox({
             wrapSize: {
               width: res.width,
@@ -933,7 +832,7 @@ watch(
     nextTick(() => {
       if (videoWrapRef.value) {
         if (newVal.size) {
-          videoWrapRef.value.style.display = 'inline-block';
+          // videoWrapRef.value.style.display = 'inline-block';
         } else {
           videoWrapRef.value.style.removeProperty('display');
         }
@@ -1236,11 +1135,20 @@ function mockClick() {
 </script>
 
 <style lang="scss" scoped>
+.max-c {
+  height: calc(100vh - 45px);
+  overflow-y: scroll;
+}
 .wrap {
+  // overflow: hidden;
+  // width: calc(100vw - 20px);
+  // // height: calc(100vh - 145px);
+  // margin: 0 auto;
   overflow: hidden;
-  width: calc(100vw - 20px);
-  height: calc(100vh - 145px);
+  width: 100vw;
   margin: 0 auto;
+  height: 100%;
+  background-color: #182529;
   .drag {
     position: fixed;
     z-index: 999;
@@ -1303,6 +1211,7 @@ function mockClick() {
 .remote-window-wrapper {
   width: 100vw;
   height: 100vh;
+  // height: calc(100vh - 145px);
   background-color: #182529;
 }
 
@@ -1315,11 +1224,14 @@ function mockClick() {
   justify-content: center;
   position: relative;
   -webkit-app-region: drag;
+  background-color: #182529;
   .header-tit {
   }
   .header-window-control {
     position: absolute;
     right: 10px;
+    -webkit-app-region: no-drag;
+
     img {
       cursor: pointer;
       height: 14px;
@@ -1333,6 +1245,7 @@ function mockClick() {
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #182529;
 
   .footer-btn-group {
     display: flex;
@@ -1340,7 +1253,7 @@ function mockClick() {
     justify-content: center;
 
     .btn-item {
-      margin-left: 40px;
+      margin-left: 60px;
       display: flex;
       flex-direction: column;
       align-items: center;

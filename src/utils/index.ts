@@ -562,8 +562,16 @@ export function videoFullBox(data: {
       maxWidth: wrapSize.width,
       minWidth: wrapSize.width,
     });
-    videoEl.style.width = `${res.width as number}px`;
-    videoEl.style.height = `${res.height as number}px`;
+    console.log('resresres',res)
+    // videoEl.style.width = `${res.width as number}px`;
+    // videoEl.style.height = `${res.height as number}px`;
+
+    // videoEl.setAttribute('resolution-width', width);
+    // videoEl.setAttribute('resolution-height', height);
+
+    videoEl.style.width = `100%`;
+    videoEl.style.height = `100%`;
+
     videoEl.setAttribute('resolution-width', width);
     videoEl.setAttribute('resolution-height', height);
   }
