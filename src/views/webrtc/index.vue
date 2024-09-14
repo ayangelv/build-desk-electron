@@ -161,6 +161,7 @@ const endRemote = () => {
     negativeText: '否',
     onPositiveClick: () => {
       message.success('已关闭远程控制');
+
       handleWinClose();
       handleClose();
       networkStore.removeAllWsAndRtc();
@@ -816,13 +817,14 @@ watch(
             },
             videoEl: item.videoEl,
           });
+          console.log('resresres', res);
           if (res.width && res.height) {
-            window.electronAPI.ipcRenderer.send(
-              'setChildWindowBounds',
-              windowId.value,
-              Math.ceil(res.width),
-              Math.ceil(res.height + titlebarHeight.value)
-            );
+            // window.electronAPI.ipcRenderer.send(
+            //   'setChildWindowBounds',
+            //   windowId.value,
+            //   Math.ceil(res.width),
+            //   Math.ceil(res.height + titlebarHeight.value)
+            // );
           }
           showLoading.value = false;
         });
