@@ -850,10 +850,10 @@ watch(
 watch(
   () => appStore.remoteDesk,
   (newval) => {
-    console.log('远程连接断开', newval);
+    console.log('远程连接断开----', newval);
 
     newval.forEach((item) => {
-      console.log('远程连接断开', item);
+      console.log('远程连接断开2222', item);
 
       if (item.isClose) {
         // 被控制人执行这里
@@ -866,6 +866,7 @@ watch(
         if (!isInitiator.value) {
           window.electronAPI.ipcRenderer.send('childWindowClose');
         } else {
+          networkStore.removeAllWs();
           // 被控制人就关闭时间和右上角关闭窗口
           window.electronAPI.ipcRenderer.send(
             'handleWinCloseRemoteDesktopControlPerson3'

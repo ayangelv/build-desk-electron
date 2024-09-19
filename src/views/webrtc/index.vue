@@ -190,7 +190,7 @@ const handRemoteWindowWrapper = () => {
     maxCRef.value.style.overflowY = 'auto';
   } else {
     videoWrapRef.value.style.width = '100%';
-    videoWrapRef.value.style.height = '100%';
+    // videoWrapRef.value.style.height = '100%';
     videoWrapRef.value.style.margin = '0 auto';
     remoteWindowWrapperref.value.style.height = '100vh';
     maxCRef.value.style.overflowY = 'scroll';
@@ -443,7 +443,7 @@ const stopTimer = () => {
 };
 
 onMounted(() => {
-  console.log('route.query', route.query);
+  console.log('route.query----', route.query);
   fromUserName.value = route.query.fromUserName;
   // roomId.value = route.query.remoteRoomId;
   // 远程时间
@@ -1187,7 +1187,7 @@ function mockClick() {
     background-color: rgba(100, 100, 111, 0.2);
     border-radius: 4px;
     width: 100%;
-    height: 100%;
+    //height: 100%;
     line-height: 0;
     // cursor: none;
   }
