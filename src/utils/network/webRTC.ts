@@ -500,7 +500,7 @@ export class WebRTCClass {
     data?: T;
   }) => {
     if (this.dataChannel?.readyState !== 'open') {
-      console.error('dataChannel未连接成功，不发送消息！', msgType, data);
+      console.error('dataChannel未连接成功，不发送消息------！', msgType, data);
       return;
     }
     console.log('dataChannel发送消息', msgType);
@@ -515,7 +515,7 @@ export class WebRTCClass {
 
   dataChannelSendBlob = ({ blob }) => {
     if (this.dataChannel?.readyState !== 'open') {
-      console.error('dataChannel未连接成功，不发送消息！');
+      console.error('dataChannel未连接成功，不发送消息！++++++');
       return;
     }
     console.log('dataChannelSendBlob发送消息');

@@ -290,7 +290,7 @@ onMounted(() => {
   //断开连接
   window.electronAPI.ipcRenderer.on('remoteDesktopDisconnect', (_event) => {
     console.log('断开连接', appStore.remoteDesk);
-    // networkStore.removeAllWsAndRtc();
+    networkStore.removeAllWs();
     // handleCloseAll();
   });
 
@@ -313,62 +313,45 @@ onMounted(() => {
   );
 
   //握信通知开始链接
-  // window.electronAPI.ipcRenderer.on(
-  //   'remoteDesktopControlMainInIt',
-  //   (_event, params) => {
-  // console.log('paramsparamsparams', params);
-  // roomId.value = params.remoteRoomId;
-  // 被控制人的ims号
-  // backToUser.value = params.backToUser;
-  //控制端，发送startRemoteDesk消息，开始远程控制。
-  // if (!params.remoteRoomId) {
-  clearInterval(tiemr.value);
-  tiemr.value = setInterval(() => {
-    networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
-      requestId: getRandomString(8),
-      msgType: WsMsgTypeEnum.updateDeskUser,
-      data: {
-        roomId: roomId.value,
-        sender: mySocketId.value,
-        receiver: receiverId.value,
-        maxBitrate: currentMaxBitrate.value,
-        maxFramerate: currentMaxFramerate.value,
-        resolutionRatio: currentResolutionRatio.value,
-        videoContentHint: currentVideoContentHint.value,
-        audioContentHint: currentAudioContentHint.value,
-        deskUserUuid: deskUserUuid.value || '',
-        deskUserPassword: deskUserPassword.value || '',
-        remoteDeskUserUuid: remoteDeskUserUuid.value || '',
-      },
-    });
-  }, 1000 * 1);
-  // } else {
-  //被远程的人执行  去发消息给控制人
-  console.log('被远程的人执行');
-  //   notifyWoxin();
-  // }
-
-  initUser();
-  handleMainWindowSetAlwaysOnTop(true);
-  initWs({
-    roomId: roomId.value,
-    isAnchor: false,
-    isRemoteDesk: true,
-  });
-
   window.electronAPI.ipcRenderer.on(
     'remoteDesktopControlMainInIt',
     (_event, params) => {
       console.log('remoteDesktopControlMainInItparams', params);
       isInitiator.value = params.remoteRoomId;
+
+      clearInterval(tiemr.value);
+      tiemr.value = setInterval(() => {
+        networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
+          requestId: getRandomString(8),
+          msgType: WsMsgTypeEnum.updateDeskUser,
+          data: {
+            roomId: roomId.value,
+            sender: mySocketId.value,
+            receiver: receiverId.value,
+            maxBitrate: currentMaxBitrate.value,
+            maxFramerate: currentMaxFramerate.value,
+            resolutionRatio: currentResolutionRatio.value,
+            videoContentHint: currentVideoContentHint.value,
+            audioContentHint: currentAudioContentHint.value,
+            deskUserUuid: deskUserUuid.value || '',
+            deskUserPassword: deskUserPassword.value || '',
+            remoteDeskUserUuid: remoteDeskUserUuid.value || '',
+          },
+        });
+      }, 1000 * 1);
+      initUser();
+      handleMainWindowSetAlwaysOnTop(true);
+      initWs({
+        roomId: roomId.value,
+        isAnchor: false,
+        isRemoteDesk: true,
+      });
+
       if (params.remoteRoomId) {
         notifyWoxin();
       }
     }
   );
-
-  //   }
-  // );
   console.log('route.query', route.query);
   if (route.query.windowId !== undefined) {
     windowId.value = `${route.query.windowId as string}`;
@@ -482,6 +465,7 @@ onMounted(() => {
     chromeMediaSourceId.value = source.stream.id;
     handleDesktopStream(source.stream.id);
   });
+
   // 握信控制人同意
   window.electronAPI.ipcRenderer.on('handle-start-remote', (_event, params) => {
     console.log('handle handle-start-remote', params);
@@ -866,10 +850,10 @@ watch(
 watch(
   () => appStore.remoteDesk,
   (newval) => {
-    console.log('远程连接断开', newval);
+    console.log('远程连接断开----', newval);
 
     newval.forEach((item) => {
-      console.log('远程连接断开', item);
+      console.log('远程连接断开2222', item);
 
       if (item.isClose) {
         // 被控制人执行这里
@@ -882,6 +866,7 @@ watch(
         if (!isInitiator.value) {
           window.electronAPI.ipcRenderer.send('childWindowClose');
         } else {
+          networkStore.removeAllWs();
           // 被控制人就关闭时间和右上角关闭窗口
           window.electronAPI.ipcRenderer.send(
             'handleWinCloseRemoteDesktopControlPerson3'

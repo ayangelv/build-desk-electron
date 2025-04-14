@@ -189,7 +189,7 @@ const handRemoteWindowWrapper = () => {
     maxCRef.value.style.overflowY = 'auto';
   } else {
     videoWrapRef.value.style.width = '100%';
-    videoWrapRef.value.style.height = '100%';
+    // videoWrapRef.value.style.height = '100%';
     videoWrapRef.value.style.margin = '0 auto';
     remoteWindowWrapperref.value.style.height = '100vh';
     maxCRef.value.style.overflowY = 'scroll';
@@ -248,6 +248,12 @@ const videoMap = ref(new Map());
 const showLoading = ref(true);
 // const chromeMediaSourceId = ref();
 const mySocketId = computed(() => {
+  console.log(
+    'networkStore.wsMap.get(roomId.value)?',
+    networkStore.wsMap.get(roomId.value),
+    networkStore.wsMap.get(roomId.value)?.socketIo?.id,
+    networkStore.wsMap.get(roomId.value)?.socketIo?.id || '-1'
+  );
   return networkStore.wsMap.get(roomId.value)?.socketIo?.id || '-1';
 });
 
@@ -258,24 +264,33 @@ const videoSettings = ref<MediaTrackSettings>();
 watch(
   () => joinedReceiver.value,
   () => {
-    console.log('joinedReceiver.value', joinedReceiver.value);
-    networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
-      requestId: getRandomString(8),
-      msgType: WsMsgTypeEnum.startRemoteDesk,
-      data: {
-        roomId: roomId.value,
-        sender: mySocketId.value,
-        receiver: joinedReceiver.value,
-        maxBitrate: currentMaxBitrate.value,
-        maxFramerate: currentMaxFramerate.value,
-        resolutionRatio: currentResolutionRatio.value,
-        videoContentHint: currentVideoContentHint.value,
-        audioContentHint: currentAudioContentHint.value,
-        deskUserUuid: deskUserUuid.value,
-        deskUserPassword: deskUserPassword.value,
-        remoteDeskUserUuid: remoteDeskUserUuid.value,
-      },
-    });
+    setTimeout(() => {
+      console.log(
+        'joinedReceiver.value',
+        joinedReceiver.value,
+        mySocketId.value,
+        networkStore.wsMap.get(roomId.value)?.socketIo,
+        networkStore.wsMap.get(roomId.value)?.socketIo?.id
+      );
+      networkStore.wsMap.get(roomId.value)?.send<WsStartRemoteDesk['data']>({
+        requestId: getRandomString(8),
+        msgType: WsMsgTypeEnum.startRemoteDesk,
+        data: {
+          roomId: roomId.value,
+          // sender: mySocketId.value,
+          sender: networkStore.wsMap.get(roomId.value)?.socketIo?.id || '-1',
+          receiver: joinedReceiver.value,
+          maxBitrate: currentMaxBitrate.value,
+          maxFramerate: currentMaxFramerate.value,
+          resolutionRatio: currentResolutionRatio.value,
+          videoContentHint: currentVideoContentHint.value,
+          audioContentHint: currentAudioContentHint.value,
+          deskUserUuid: deskUserUuid.value,
+          deskUserPassword: deskUserPassword.value,
+          remoteDeskUserUuid: remoteDeskUserUuid.value,
+        },
+      });
+    }, 200);
   }
 );
 
@@ -816,14 +831,14 @@ watch(
             },
             videoEl: item.videoEl,
           });
-          if (res.width && res.height) {
-            window.electronAPI.ipcRenderer.send(
-              'setChildWindowBounds',
-              windowId.value,
-              Math.ceil(res.width),
-              Math.ceil(res.height + titlebarHeight.value)
-            );
-          }
+          // if (res.width && res.height) {
+          //   window.electronAPI.ipcRenderer.send(
+          //     'setChildWindowBounds',
+          //     windowId.value,
+          //     Math.ceil(res.width),
+          //     Math.ceil(res.height + titlebarHeight.value)
+          //   );
+          // }
           showLoading.value = false;
         });
         videoWrapRef.value.appendChild(item.videoEl);
@@ -1185,7 +1200,7 @@ function mockClick() {
     background-color: rgba(100, 100, 111, 0.2);
     border-radius: 4px;
     width: 100%;
-    height: 100%;
+    // height: 100%;
     line-height: 0;
     // cursor: none;
   }
