@@ -109,7 +109,6 @@
 </template>
 
 <script lang="ts" setup>
-import { Key } from '@nut-tree/shared';
 import { useDraggable } from '@vueuse/core';
 import { computeBox, getRandomString } from 'billd-utils';
 import { useDialog, useMessage } from 'naive-ui';
@@ -580,7 +579,7 @@ function loopGetSettings() {
       ?.localStream?.getVideoTracks()
       .forEach((item) => {
         videoSettings.value = item.getSettings();
-        console.log('videoSettings', item);
+        // console.log('videoSettings', item);
       });
     // const rect = videoWrapRef.value.getBoundingClientRect();
     // console.log('rectrectrect', rect);
@@ -863,54 +862,68 @@ watch(
 function handleKeyDown(e: KeyboardEvent) {
   console.log(e.key, e.code);
   const keyMap = {
-    Delete: Key.Delete,
-    Enter: Key.Enter,
-    Space: Key.Space,
-    Backspace: Key.Backspace,
-    ShiftLeft: Key.LeftShift,
-    ShiftRight: Key.RightShift,
-    AltLeft: Key.LeftAlt,
-    AltRight: Key.RightAlt,
-    Tab: Key.Tab,
-    Backquote: Key.Quote,
-    Backslash: Key.Backslash,
-    ArrowUp: Key.Up,
-    ArrowDown: Key.Down,
-    ArrowLeft: Key.Left,
-    ArrowRight: Key.Right,
-    CapsLock: Key.CapsLock,
-    ControlLeft: Key.LeftControl,
-    ControlRight: Key.RightControl,
-    MetaLeft: Key.LeftCmd,
-    LeftWin: Key.LeftCmd,
-    MetaRight: Key.RightCmd,
-    RightWin: Key.RightCmd,
-    Fn: Key.Fn,
-    F1: Key.F1,
-    F2: Key.F2,
-    F3: Key.F3,
-    F4: Key.F4,
-    F5: Key.F5,
-    F6: Key.F6,
-    F7: Key.F7,
-    F8: Key.F8,
-    F9: Key.F9,
-    F10: Key.F10,
-    F11: Key.F11,
-    F12: Key.F12,
-    F13: Key.F13,
-    F14: Key.F14,
-    F15: Key.F15,
-    F16: Key.F16,
-    F17: Key.F17,
-    F18: Key.F18,
-    F19: Key.F19,
-    F20: Key.F20,
-    F21: Key.F21,
-    F22: Key.F22,
-    F23: Key.F23,
-    F24: Key.F24,
+    Delete: 'delete',
+    Enter: 'enter',
+    Escape: 'escape',
+    Space: 'space',
+    Backspace: 'backspace',
+    ShiftLeft: 'shift',
+    ShiftRight: 'right_shift',
+    AltLeft: 'alt',
+    AltRight: 'alt',
+    Tab: 'tab',
+    Backquote: '`',
+    ArrowUp: 'up',
+    ArrowDown: 'down',
+    ArrowLeft: 'left',
+    ArrowRight: 'right',
+    ControlLeft: 'control',
+    ControlRight: 'control',
+    Home: 'home',
+    End: 'end',
+    Pageup: 'pageup',
+    Pagedown: 'pagedown',
+    Command: 'command',
+    Printscreen: 'printscreen',
+    Insert: 'insert',
+    F1: 'f1',
+    F2: 'f2',
+    F3: 'f3',
+    F4: 'f4',
+    F5: 'f5',
+    F6: 'f6',
+    F7: 'f7',
+    F8: 'f8',
+    F9: 'f9',
+    F10: 'f10',
+    F11: 'f11',
+    F12: 'f12',
+    Numpad0: 'numpad_0',
+    Numpad1: 'numpad_1',
+    Numpad2: 'numpad_2',
+    Numpad3: 'numpad_3',
+    Numpad4: 'numpad_4',
+    Numpad5: 'numpad_5',
+    Numpad6: 'numpad_6',
+    Numpad7: 'numpad_7',
+    Numpad8: 'numpad_8',
+    Numpad9: 'numpad_9',
   };
+
+  let singleKey = keyMap[e.code] || e.key;
+  if (e.key === 'Control' && e.key === 'Shift' && e.code === 'KeyI') {
+    singleKey = ['i', 'Shift', 'Control'];
+  }
+  if (e.key === 'Control' && e.code === 'KeyA') {
+    singleKey = ['a', 'Control'];
+  }
+  if (e.key === 'Control' && e.code === 'KeyC') {
+    singleKey = ['c', 'Control'];
+  }
+  if (e.key === 'Control' && e.code === 'KeyV') {
+    singleKey = ['v', 'Control'];
+  }
+  const keyboardtype = singleKey;
 
   networkStore.rtcMap
     .get(joinedReceiver.value)
@@ -922,7 +935,7 @@ function handleKeyDown(e: KeyboardEvent) {
         sender: mySocketId.value,
         receiver: joinedReceiver.value,
         type: RemoteDeskBehaviorEnum.keyboardType,
-        keyboardtype: keyMap[e.code] || e.key,
+        keyboardtype,
         x: 0,
         y: 0,
         amount: 0,

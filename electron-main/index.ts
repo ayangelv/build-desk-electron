@@ -10,9 +10,9 @@ import {
   screen,
 } from 'electron';
 
-import { nutjsTs } from './types';
+// import { nutjsTs } from './types';
 
-const nutjs: nutjsTs = require('@nut-tree/nut-js');
+// const nutjs: nutjsTs = require('@nut-tree/nut-js');
 
 // 该版本electron所对应的node版本
 console.log('process.version', process.version);
@@ -81,9 +81,8 @@ function createWindow() {
     try {
       const childWindow = childWindowMap.get(Number(windowId));
       childWindow?.close();
-// // 发送关闭远程
-//       win?.webContents.send('childWindowClose');
-
+      // // 发送关闭远程
+      //       win?.webContents.send('childWindowClose');
     } catch (error) {
       console.log('childWindowClose失败');
       console.log(error);
@@ -165,10 +164,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('mouseScrollDown', async (_event, amount) => {
+  ipcMain.on('mouseScrollDown', (_event, amount) => {
     console.log('收到mouseScrollDown');
     try {
-      await nutjs.mouse.scrollDown(amount);
+      // await nutjs.mouse.scrollDown(amount);
       win?.webContents.send('mouseScrollDownRes', {
         isErr: false,
         msg: { amount },
@@ -180,10 +179,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('mouseScrollUp', async (_event, amount) => {
+  ipcMain.on('mouseScrollUp', (_event, amount) => {
     console.log('收到mouseScrollUp');
     try {
-      await nutjs.mouse.scrollUp(amount);
+      // await nutjs.mouse.scrollUp(amount);
       win?.webContents.send('mouseScrollUpRes', {
         isErr: false,
         msg: { amount },
@@ -195,10 +194,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('mouseScrollLeft', async (_event, amount) => {
+  ipcMain.on('mouseScrollLeft', (_event, amount) => {
     console.log('收到mouseScrollLeft');
     try {
-      await nutjs.mouse.scrollLeft(amount);
+      // await nutjs.mouse.scrollLeft(amount);
       win?.webContents.send('mouseScrollLeftRes', {
         isErr: false,
         msg: { amount },
@@ -210,10 +209,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('mouseScrollRight', async (_event, amount) => {
+  ipcMain.on('mouseScrollRight', (_event, amount) => {
     console.log('收到mouseScrollRight');
     try {
-      await nutjs.mouse.scrollRight(amount);
+      // await nutjs.mouse.scrollRight(amount);
       win?.webContents.send('mouseScrollRightRes', {
         isErr: false,
         msg: { amount },
@@ -225,10 +224,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('mouseSetPosition', async (_event, x, y) => {
+  ipcMain.on('mouseSetPosition', (_event, x, y) => {
     console.log('收到mouseSetPosition', x, y);
     try {
-      await nutjs.mouse.setPosition({ x, y });
+      // await nutjs.mouse.setPosition({ x, y });
       win?.webContents.send('mouseSetPositionRes', {
         isErr: false,
         msg: { x, y },
@@ -240,10 +239,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('mouseMove', async (_event, x, y) => {
+  ipcMain.on('mouseMove', (_event, x, y) => {
     console.log('收到mouseMove', x, y);
     try {
-      await nutjs.mouse.move([{ x, y }]);
+      // await nutjs.mouse.move([{ x, y }]);
       // nutjs.mouse.move([{ x, y }]);
       win?.webContents.send('mouseMoveRes', {
         isErr: false,
@@ -256,10 +255,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('mouseDrag', async (_event, x, y) => {
+  ipcMain.on('mouseDrag', (_event, x, y) => {
     console.log('收到mouseDrag', x, y);
     try {
-      await nutjs.mouse.drag([{ x, y }]);
+      // await nutjs.mouse.drag([{ x, y }]);
       win?.webContents.send('mouseDragRes', {
         isErr: false,
         msg: { x, y },
@@ -271,10 +270,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('keyboardType', async (_event, key) => {
+  ipcMain.on('keyboardType', (_event, key) => {
     console.log('收到keyboardType', key);
     try {
-      await nutjs.keyboard.type(key);
+      // await nutjs.keyboard.type(key);
       win?.webContents.send('keyboardTypeRes', {
         isErr: false,
         msg: { key },
@@ -286,10 +285,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('mousePressButtonLeft', async (_event, x, y) => {
+  ipcMain.on('mousePressButtonLeft', (_event, x, y) => {
     console.log('收到mousePressButtonLeft', x, y);
     try {
-      await nutjs.mouse.pressButton(nutjs.Button.LEFT);
+      // await nutjs.mouse.pressButton(nutjs.Button.LEFT);
       win?.webContents.send('mousePressButtonLeftRes', {
         isErr: false,
         msg: { x, y },
@@ -301,10 +300,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('mouseReleaseButtonLeft', async (_event, x, y) => {
+  ipcMain.on('mouseReleaseButtonLeft', (_event, x, y) => {
     console.log('收到mouseReleaseButtonLeft', x, y);
     try {
-      await nutjs.mouse.releaseButton(nutjs.Button.LEFT);
+      // await nutjs.mouse.releaseButton(nutjs.Button.LEFT);
       win?.webContents.send('mouseReleaseButtonLeftRes', {
         isErr: false,
         msg: { x, y },
@@ -316,10 +315,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('mouseDoubleClick', async (_event, x, y) => {
+  ipcMain.on('mouseDoubleClick', (_event, x, y) => {
     console.log('收到mouseDoubleClick', x, y);
     try {
-      await nutjs.mouse.doubleClick(nutjs.Button.LEFT);
+      // await nutjs.mouse.doubleClick(nutjs.Button.LEFT);
       win?.webContents.send('mouseDoubleClickRes', {
         isErr: false,
         msg: { x, y },
@@ -331,10 +330,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('mouseLeftClick', async (_event, x, y) => {
+  ipcMain.on('mouseLeftClick', (_event, x, y) => {
     console.log('收到mouseLeftClick', x, y);
     try {
-      await nutjs.mouse.click(nutjs.Button.LEFT);
+      // await nutjs.mouse.click(nutjs.Button.LEFT);
       win?.webContents.send('mouseLeftClickRes', {
         isErr: false,
         msg: { x, y },
@@ -346,10 +345,10 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('mouseRightClick', async (_event, x, y) => {
+  ipcMain.on('mouseRightClick', (_event, x, y) => {
     console.log('收到mouseRightClick', x, y);
     try {
-      await nutjs.mouse.click(nutjs.Button.RIGHT);
+      // await nutjs.mouse.click(nutjs.Button.RIGHT);
       win?.webContents.send('mouseRightClickRes', {
         isErr: false,
         msg: { x, y },
@@ -361,9 +360,9 @@ function createWindow() {
       });
     }
   });
-  ipcMain.on('getMousePosition', async () => {
+  ipcMain.on('getMousePosition', () => {
     console.log('收到getMousePosition');
-    const point = await nutjs.mouse.getPosition();
+    // const point = await nutjs.mouse.getPosition();
     win?.webContents.send('getMousePositionRes', {
       point,
     });

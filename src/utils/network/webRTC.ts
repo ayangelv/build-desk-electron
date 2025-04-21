@@ -348,7 +348,7 @@ export class WebRTCClass {
     this.prettierLog({ msg: '开始监听pc的icecandidate事件', type: 'warn' });
     this.peerConnection.addEventListener('icecandidate', (event) => {
       this.prettierLog({ msg: 'pc收到icecandidate', type: 'warn' });
-      console.log('eventeventevent',event)
+      console.log('eventeventevent', event);
       if (event.candidate) {
         const networkStore = useNetworkStore();
         networkStore.wsMap.get(this.roomId)?.send<WsCandidateType['data']>({
@@ -503,7 +503,7 @@ export class WebRTCClass {
       console.error('dataChannel未连接成功，不发送消息------！', msgType, data);
       return;
     }
-    console.log('dataChannel发送消息', msgType);
+    console.log('dataChannel发送消息', msgType, data);
     this.dataChannel.send(
       JSON.stringify({
         msgType,
@@ -547,7 +547,7 @@ export class WebRTCClass {
       });
       this.peerConnection.ondatachannel = (event) => {
         this.cbDataChannel = event.channel;
-        console.log(' this.cbDataChannel', this.cbDataChannel)
+        console.log(' this.cbDataChannel', this.cbDataChannel);
         this.update();
       };
       this.dataChannel = this.peerConnection.createDataChannel(
